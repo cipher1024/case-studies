@@ -1,0 +1,66 @@
+\documentclass[10pt]{report}
+\usepackage[top=3cm, bottom=2.5cm, left=3cm, right=2.5cm] {geometry}
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+
+	% NOTE: It seems strategic to set the proofs repository as a submodule of any repository making
+	% 	use of it.  For articles `some_article' and `other_article' it seems sensible to put the directories
+	%	`some_article', `other_article' and `packages' (which contains proofs as a submodule) side by
+	%	side.
+	% (END OF NOTE)
+\usepackage{fancyhdr,lastpage,color}
+\usepackage{../packages/bsymb}
+\usepackage{../packages/b2latex}
+\usepackage{../packages/elogic}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{SH60 - The Derivation of a Parser}
+\author{Simon Hudon}
+%\date{}                                           % Activate to display a given date or no date
+\pagestyle{fancy}
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+%\thispagestyle{empty}
+
+The idea behind this note is to present an experiment similar to that presented in EWD550.  In this note however, the goal is a bit more ambitious.  On one hand, I hope to be able to use the resulting program to parse arbitrary mathematical formulae so I have to support a more complicated grammar.  On the other hand, while I was developing the program, I came across the idea of separating the grammar by feature as a means of simplification of the process.  This is what is usually referred to as "separation of concerns" and I'm expecting very elegant results by following this particular path in this situation.
+
+To be more specific about the goal that the algorithm is expected to fulfill, I want it to take a set of operators as a parameter together with a set of precedence rules and have it parse a formula built from custom unary, binary and quantified operators.  In addition, I would also like to include regular parentheses and custom bracketed operators.  As a first effort, the grammar will be simplified to support only binary operators.  This is the construct that allows the construction of also arbitrarily long strings.  The only limitation is the fact that no means is taken yet to have either of associative, left or right associative operators.  This limits to length of the longest possible string to $2^n$ when the size of the set of operators is $n$.  The addition of parentheses and bracketed operators will allow us to remove that limitation later.  As far as I know, the formalism used to describe the syntax, which I call parameterized grammar, is novel although it is not considered central to the exercise.  It is merely addresses notational need that I happened to have.
+
+\begin{align}
+	Expr(SOp) \quad ::= & \quad Expr (prec.r) \ r \ Expr (prec.r) \label{csyntax} \\
+		& \qquad \text{with $r \in SOp$} \nonumber \\ 
+		& | \quad \textbf{word} \nonumber \\
+		& \nonumber ;
+\end{align}
+
+This is a one (generic) variable grammar.  There might be several ways of formalizing it but, since it should not intervene much in the proofs, I leave the problem open.  There are three identifier for which the role might not be immediately obvious.  $SOp$ is a set of operator which are available, $prec$ is a binary relation for which $prec.x.y$ is true if $y$ has a stronger precedence than $x$.  In the precedent context, it is really useful to have the relation named since we can use it as a curried function for which $prec.r$ yields the set of operators which have a stronger precedence than $r$.  In the proofs, it will become convenient to use $\prec$ instead.
+
+At this point, after exploring the possibility of using Dijkstra's notion of prefixes, I decided to use syntax trees to define the invariant of the program.
+
+\begin{align}
+	Expr \quad \triangleq & \quad Oper (op: OPER; t1, t2: Expr) \label{asyntax} \\
+		& | \quad Word (w: WORD) \nonumber \\
+		& ; \nonumber
+\end{align}
+
+The previous definition can serve both as a grammar describing the abstract syntax and as a definition of the abstract data type used to represent a syntax tree.  In the latter case, the bar is used to denote the disjoint union.  With respect to typing, it can be introduced in the context of simply typed lambda calculus but it won't be covered here.  Suffice to say that the description introduced three types ($Expr$, $Oper$ and $Word$) along with two injective functions to $Expr$ $oper$ and $word$ for which
+
+\begin{equation}
+	oper.op.t1.t2 \ \neq \ word.w \qquad \qquad \text{(for all $op, t1, t2, w$)}
+\end{equation} 
+
+Finally, $WORD$ and $OPER$ are understood as types of tokens.  Whenever we need a mix of the two, we can inject them in $TOKEN$ using respectively $wtok$ and $otok$.  Again we have:
+
+\begin{equation}
+	wtok.w \ \neq \ otok.op \qquad \qquad \text{(for all $op, w$)}
+\end{equation}
+
+\end{document}  

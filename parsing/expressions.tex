@@ -1,0 +1,34 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{../packages/bnf}
+\usepackage{../packages/elogic}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{About Custom Operators}
+\author{Simon}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+%\section{}
+%\subsection{}
+
+This essay is aimed at developing an algorithm for parsing expressions in a context where it is possible to define custom operators along with their precedences.  Since we can't name the operators, we have to use a technique which is not commonly use for defining the syntax of languages.  As far as I know, the technique did not exist prior to the redaction of this essay.  We have to use parameterized production rules.  
+
+\begin{grammar} 
+		[(colon){$\rightarrow$}] 
+		[(semicolon){ $\\ \quad | \quad$}] 
+		[(period){\\}] 
+		[(quote){Ô}{Õ}] 
+	expr (oper)  : expr (prec"."op) op expr (prec"."op)  \\
+	$\qquad$ with $op \in oper$
+	; 'word'
+\end{grammar}
+
+\end{document}  
