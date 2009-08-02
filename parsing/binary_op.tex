@@ -63,4 +63,36 @@ Finally, $WORD$ and $OPER$ are understood as types of tokens.  Whenever we need 
 	wtok.w \ \neq \ otok.op \qquad \qquad \text{(for all $op, w$)}
 \end{equation}
 
+Since we need constrain subexpressions so that they have only operators with operators of higher precedence than that of the unifying operator.  Unless we introduce dependent types, we can't deal with that concern using types.  I'm very reluctant to give in to dependent types so I'll just define the $valid$ predicate to describe that constraint for now.
+
+It is fairly simple to see that, when the parse tree has no operator, it does not have any precedence violation.
+
+\begin{equation}
+	valid.(Word.w) 
+\end{equation}
+
+Since the precedence relationship is transitive, it suffices to compare the precedence of all the operators with that of the root of both children, if any of them have a binary operator.  However, the last sentence gives a nice hint that even comparing from one level to the other can yield a complex predicate.  Instead of including a conditional in the predicate to cope with the case where one or both children of an operator node is not a binary operator, we will introduce a different notion, that of compatibility between an operator and a syntax tree.
+
+\begin{equation}
+	comp.op.(Word.w)
+\end{equation}
+\begin{equation}
+	comp.op1.(Oper.op2.t1.t2) \equiv op1 \prec op2
+\end{equation}
+
+That way, we can simply say that a binary operator must be compatible with its two subexpressions.
+
+\begin{align}
+		& valid.(Oper.op.t1.t2)  \nonumber \\
+	\equiv & \\ 
+		& comp.op.t1 \land comp.op.t2 \land valid.t1 \land valid.t2 \nonumber
+\end{align}
+
+To be able to compare a parse string with its parse tree, we will use the inorder of the tree to compare it with.
+
+\begin{align}
+	in.(Word.w) & = \seq{w} \\
+	in.(Oper.op.t1.t2) & = in.t1 \cat \seq{op} \cat in.t2 
+\end{align}
+
 \end{document}  
