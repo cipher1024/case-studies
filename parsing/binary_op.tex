@@ -93,29 +93,33 @@ For our purpose, the parser for this language will have a dual task:
 	\item Detect any syntax error and mark an incorrect input as such.
 \end{enumerate}
 
-We will narrow down the set of acceptable parse trees by adding a precedence relation $\prec$ between operators.  For the operators $p$, $q$,$r$ in the following input:
+We will narrow down the set of acceptable parse trees by adding a precedence relation $\prec$ between operators.  For the operators $p$, $q$ in the following input:
 
-\[ \word \cdot p \cdot \word \cdot q \cdot \word \cdot r \cdot \word \]
+\[ \word \cdot p \cdot \word \cdot q \cdot \word \]
 
-with the following relations between the operators:
+We can have two rendering of the syntax tree:
 
-\begin{align*}
-	q & \prec p \\
-	q & \prec r
-\end{align*}
+\begin{align}
+	& (\word \cdot p \cdot \word ) \cdot q \cdot \word \label{leftrendering} \\
+	& \word \cdot p \cdot (\word \cdot q \cdot \word ) \label{rightrendering}
+\end{align}
 
-$q$ should be located in a subtree of $p$ and $r$.  It is also true if we consider trees instead of the words in the above input.  For now, we make no further assumption about $\prec$.  It follows that the construction of a parse tree is non-deterministic if in
-
-\[
-t1 \cdot p \cdot t2 \cdot q \cdot t3
-\]
-
-we have
+We will choose to invalidate some rendering to keep the expressions unambiguous as often as possible without the intervention of an explicit choice of the rendering.
 
 \begin{align*}
-	q & \prec p \\
-	p & \prec q
+	valid.((\word \cdot p \cdot \word ) \cdot q \cdot \word) & \equiv p \prec q\\
+	valid.(\word \cdot p \cdot (\word \cdot q \cdot \word )) & \equiv q \prec p
 \end{align*}
+
+This means that both rendering are valid whenever $p \prec q \land q \prec p$.  In this case, we generally say that $p$ and $q$ are mutually associative and, in the case where $p = q$, we just say that they denote an associative operator. 
+
+Instead of allowing more than one rendering, we can decide to put mutually associative operators in one node.  We therefore revise our notion of valid rendering for
+
+\begin{align*}
+	valid.((\word \cdot p \cdot \word ) \cdot q \cdot \word) & \equiv p \prec q \land \neg (q \prec p) \\
+	valid.(\word \cdot p \cdot (\word \cdot q \cdot \word )) & \equiv q \prec p \land \neg (p \prec q)
+\end{align*}
+
 
 We can say, in such circumstances that $p$ and $q$ are mutually associative.  It also follows that the construction of a parse tree can fail even if the syntax of the input is correct.  It is the case for an input of the form:
 
