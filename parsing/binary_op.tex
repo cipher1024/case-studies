@@ -154,7 +154,22 @@ It also follows that the construction of a parse tree can fail even if the synta
 \division{4}{Refinement}
 
 \begin{align*}
-\type{tree}{\textbf{Tree} \tfun \nat }
+\type{root}{P \tfun \nat} \\
+\type{bins}{\pow (P)} \\
+\type{leaves}{\pow (P)} \\
+\type{left}{P \tfun P} \\
+\type{right}{P \tfun P} \\
+\type{op}{P \tfun OPER} \\
+\type{w}{P \tfun WORD}
+\end{align*}
+
+\division{4}{invariant}
+
+\begin{align*}
+	[\neg (bins.x & \land leaves.x)] \\
+	[bins.p \implies ptot.p &= BinOp.(op.p).(ptot.(left.p)).(ptot.(right.p))] \\
+	[leaves.p \implies ptot.p & = Word.(w.p)] \\
+	[\iter{+}{p}{ptot.p = x \land (bins.p \lor leaves.p)}{root.p} & = tree.x] 
 \end{align*}
 
 \division{3}{Stacks}
