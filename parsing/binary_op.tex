@@ -117,9 +117,20 @@ we have
 	p & \prec q
 \end{align*}
 
-It also follows that the construction of a parse tree can fail even if the syntax of the input is correct.
+We can say, in such circumstances that $p$ and $q$ are mutually associative.  It also follows that the construction of a parse tree can fail even if the syntax of the input is correct.  It is the case for an input of the form:
 
+\[
+t1 \cdot p \cdot t2 \cdot q \cdot t3
+\]
 
+with
+
+\begin{align*}
+	\neg q & \prec p \\
+	\neg p & \prec q
+\end{align*}
+
+This situation will thereafter be referred to with the expression "ambiguous operator precedence".  Strictly speaking, it is not a syntactic error since, with respect to the grammar, the word is correct but we will adopt a wider notion of syntax which includes the precedence relation between operators.  
 
 \division{2}{Data structures}
 
