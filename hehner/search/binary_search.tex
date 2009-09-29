@@ -1,0 +1,87 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{algorithmic}
+\usepackage{ifthen}
+\usepackage{../packages/elogic}
+\usepackage{../packages/bsymb}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Binary Search with Hehner's Calculus}
+\author{Simon Hudon}
+\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+\section{Introdution}
+
+This is an exercise I did to practice with Hehner's program calculus.  The problem is a classical one but, still, it's solution is easy to get wrong.
+
+\section{Notation}
+
+The notation I use is a slightly revised version of that used in Hehner's book.  It consists of the elementary structured programming construct but, instead of using a recursive definition for $while$ I use an $until$ loop defined in the usual way.  
+
+The calculus works with predicates and relations over state spaces.  We will use $\Sigma$ as the type for our spaces.  In this context, we define a program as a relation between two states that we can interpret as the state before the execution of the program and the state after.  The type, given in curried form, is therefore $\Sigma \tfun \Sigma \tfun \mathbb{B}$. 
+
+\note{To be continued}
+
+\section{Problem}
+
+We have a sorted array $A(0 \le i<n)$ in which we are looking for $x$.  We make the following assumptions:
+
+\begin{align} 
+	& A.0 \le x \\
+	& x < A.n \\
+	& \iter{\forall}{i,j}{i \le j}{A.i \le A.j}
+\end{align}
+
+We want to compute $i$ such that the following predicates hold:
+
+\begin{align*}
+	& Q1: \quad 0 \le i \land i < n \\
+	& Q2: \quad A.i \le x \land x < A.(i+1)
+\end{align*}
+
+\section{Solution}
+
+Since we have to look at an unknown number of places for x, we start right away with designing a loop that solves the problem.  We use the technique of uncoupling to find our loop invariant from the postcondition $Q2$: since $i$ appears twice in the postcondition, we can replace an expression containing one occurrence by an expression of $j$ and build our loop around the idea of bringing $i$ and $j$ close enough to one another.
+
+\begin{deriv}
+		\step{Q2}
+			\infer{\implied}{Leibniz}
+		\step{A.i \le x \land x < A.j \land j = i + 1}
+			\infer{=}{Define $J1 \equiv A.i \le x \land x < A.j$ and $G1 \equiv j = i + 1$}
+		\step{J1\land G1}
+\end{deriv}
+
+We keep $Q1$ as an invariant and also take its equivalent in terms of $j$.
+
+\begin{align*}
+	& J2: \quad 0 \le i \land i < n  \\
+	& J3: \quad 0 < j \le n 
+\end{align*}
+
+Contrarily to usual practice, we will start our derivation by refining the requirement for the loop to terminate.  The usual technique for this is to identify a decreasing value, the variant.  Since we are trying to bring $i$ and $j$ closer and closer to one another, their difference is a good idea for a variant.  To simplify the whole thing, we'll have $i$ approach from the lower values and $j$ from the higher values.
+
+\[
+	J4: \quad i < j
+\]
+
+\begin{deriv}
+	\step{j' - i' < j - i}
+		\infer{=}{J4 and G1}
+	\step{j' - i' < j - i \land \iter{\exists}{k}{}{i < k \land k < j}}
+		\infer{=}{Distributivity of $\lor$ over $\exists$}
+	\step{\iter{\exists}{k}{}{j' - i' < j - i \land i < k \land k < j}}
+		\infer{\implied}{Strengthening}
+	\step{\iter{\exists}{k}{}{j' - i' < j - i \land i < k \land k < j \land ((i' = k \land j' = j) \lor (i' = i \land j' = k))}}
+		\infer{}{}
+\end{deriv}
+
+\end{document}  
