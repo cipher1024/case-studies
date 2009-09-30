@@ -1,0 +1,94 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{algorithmic}
+\usepackage{tocloft}
+\usepackage{ifthen}
+\usepackage{../../packages/elogic}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Derivation of a program to calculate the max of two numbers}
+\author{Simon Hudon}
+\date{}                                           % Activate to display a given date or no date
+
+\renewcommand{\max}{\uparrow}
+\renewcommand{\[}{\begin{align}}
+\renewcommand{\]}{\end{align}}
+%\renewcommand{\ref}[1]{\eqref{#1}}
+\newcommand{\predicate}[2]{  \begin{equation*} #1: \qquad #2 \end{equation*} }
+\newcommand{\axiom}[2]{ \begin{equation} #1 \label{2} \end{equation} }
+
+\newcommand{\kw}[1]{\textbf{  #1  }}
+\newcommand{\select}[1]{ & \kw{if} #1 \\ & \kw{fi} }
+\newcommand{\choice}{ \\ & \kw{or}}
+\newcommand{\then}{\kw{then} \\ & \qquad }
+\usepackage{listings}
+
+\begin{document}
+\maketitle
+
+%\section{Introdution}
+This is a simple exercise to get started with Hehner's calculus.
+
+We use $\max$ to denote the function that denotes the maximum of two numbers.  We want to implement:
+
+\predicate{Q1}{z = x \max y}
+
+The first thing that might be of use is two know that $x \max y$ can only take two values.
+
+\axiom{x = x \max y \lor y = x \max y}{0}
+
+\begin{deriv}
+	\step{Q1 [z := z']}
+		\infer{=}{$\eqref{0}$}
+	\step{z' = x \max y \land (x = x \max y \lor y = x \max y)}
+		\infer{=}{Distributivity of $\land$ over $\lor$ }
+	\step{(z' = x \max y \land x = x \max y) \lor (z' = x \max y \land y = x \max y)}
+		\infer{=}{Leibniz twice}
+	\step{(z' = x \land x = x \max y) \lor (z' = y \land y = x \max y)}
+\end{deriv}
+	
+The last step of the calculation gives us the shape of an acceptable program.
+\lstset{language=Eiffel}
+\begin{lstlisting}
+P1:	if $x = x \max y$ then
+		z := x
+	or $y = x \max y$ then
+		z := y
+	end
+\end{lstlisting}
+
+This program, even if it gives a direction to the development does not do much more than beg the question: if we could evaluate $x = x \max y$ directly, we could simply use the mechanism for assigning z directly.  However, a feature of lattice theory tells us a very interesting fact:
+
+\axiom{x = x \max y \equiv y \le x}{1}
+
+Combined with the following, it can make $P1$ executable.
+
+\axiom{x \max y = y \max x}{2}
+
+\begin{deriv}
+	\step{P1}
+		\infer{=}{\eqref{2}}
+	\step{(z' = x \land \"x = x \max y\") \lor (z' = y \land \" \*y = y \max x\* \")}
+		\infer{=}{\eqref{1} twice}
+	\step{(z' = x \land \* x \le y \* ) \lor (z' = y \land \* y \le x \*)}
+\end{deriv}
+
+Which yields the more interesting:
+
+\begin{lstlisting}
+P2:	if $x \le y$ then
+		z := x
+	or $y \le x$ then
+		z := y
+	end
+\end{lstlisting}
+
+
+
+\end{document}  
