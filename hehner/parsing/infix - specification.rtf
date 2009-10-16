@@ -1,0 +1,77 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\b\fs24 \cf0 types\
+	
+\b0 Token\
+
+\b \
+constants
+\b0 \
+	L1, L2: Token --> |B\
+	word, op: Token\
+	S: seq (Token)\
+\
+
+\b dummies
+\b0 \
+	x: seq (Token)\
+	c, d: |B\
+	y: Token\
+\
+
+\b Propositions
+\b0 \
+(0)	L1.[word]\
+(1)	L1.(x <- op <- word)   ==   L1.x\
+(2)	L2.x   ==   L1.(x <- word)\
+(3)	y = word  \\/  y = op		("Alphabet")\
+\
+J1:	c == L1.x\
+J2: 	d == L2.x\
+\
+P1:	(c' = d  /\\  y = word)   \\/   (c' = false  /\\  y = op)\
+P2:	(x' = x <- y)\
+\
+(4)	L1.(x <- op) = false\
+(5)	L2.(x <- word) == false\
+(6)	L2.(x <- op) == L1.x\
+\
+P3:	(y = word  /\\  d' = false)   \\/   (y = op  /\\  d' = c)\
+\
+G1:	y = word\
+G2:	y = op\
+\
+Q1:	c' = d\
+Q2:	c' = false\
+Q3:	d' = false\
+Q4:	d' = c\
+\
+P4:	(G1  /\\  Q1  /\\  Q3)  \\/  (G2  /\\  Q2  /\\  Q4)\
+\
+(7)	G1  /\\  Q1  /\\  P3    ==    G1  /\\  Q1  /\\  Q3\
+(8)	G2  /\\  Q2  /\\  P3    ==    G2  /\\  Q2  /\\  Q4\
+(9)	y = word  /\\  y = op    ==    false\
+\
+P5:	x = []\
+P6:	c = false\
+P7:	d = true\
+\
+J3:	x ++ z = S\
+\
+P8:	z' = w\
+\
+G3:	y -> w = z\
+\
+P9:	( 
+\b E
+\b0  y, w:  G3:  P2  /\\  P4  /\\  P8 )\
+\
+P10:	z = S\
+\
+(10)	b  <  a -> b\
+(11)	#b < #c    ==    b < c\
+}
