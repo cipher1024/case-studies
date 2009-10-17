@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="949.54">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Helvetica}
+    span.s1 {font: 13.0px Helvetica}
+    span.Apple-tab-span {white-space:pre}
+  </style>
+</head>
+<body>
+<p class="p1">Refinement</p>
+<p class="p2"><br></p>
+<p class="p1">As mentioned at the end of the development of the acceptor for infix expression, the variables are in no way meant to be stored as they are.<span class="Apple-converted-space">  </span>If they are a suitable data representation, good! but they merely reflect a choice of what to name and what should be left unnamed for the clarity of the exposition.<span class="Apple-converted-space">  </span>We will now attempt the creation of a more efficient data structure.<span class="Apple-converted-space">  </span>Instead of changing two sequences, we will iterate through an array representing S.<span class="Apple-converted-space">  </span>Therefore, we replace the variables x and z for an array f, its length n and the current location i.<span class="Apple-converted-space">  </span>As a consequence, it is expected that w and y will no longer be needed.<span class="Apple-converted-space">  </span>We start with an hypothesis binding f and n to S.<span class="Apple-converted-space">  </span>(We shall refer to the theorems of the development by prefixing their number with 'D.')</p>
+<p class="p2"><br></p>
+<p class="p1">(0)<span class="Apple-tab-span">	</span>S = f (0 .. n)</p>
+<p class="p1">(1)<span class="Apple-tab-span">	</span>i ≤ j <span class="Apple-converted-space">  </span>==&gt; <span class="Apple-converted-space">  </span>g ( j .. i ) = []</p>
+<p class="p1">(2)<span class="Apple-tab-span">	</span>g ( i .. i+1 ) = [ g.i ]</p>
+<p class="p1">(3)<span class="Apple-tab-span">	</span>i ≤ j ≤ k<span class="Apple-converted-space">  </span>==&gt;<span class="Apple-converted-space">  </span>g ( i .. k )<span class="Apple-converted-space">  </span>=<span class="Apple-converted-space">  </span>g ( i .. j ) ++ g ( j .. k )</p>
+<p class="p2"><br></p>
+<p class="p1">We want to start i with 0 so we will see what relation is necessary to relate it at first with x and z.</p>
+<p class="p2"><br></p>
+<p class="p1">P11:<span class="Apple-tab-span">	</span>i = 0</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span>x = " [] "<span class="Apple-converted-space">  </span>/\<span class="Apple-converted-space">  </span>z = " S "</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ (1) and (0) }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>x = f ( 0..0 )<span class="Apple-converted-space">  </span>/\<span class="Apple-converted-space">  </span>z = f ( 0 .. n )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ P11 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>x = f ( 0..i )<span class="Apple-converted-space">  </span>/\<span class="Apple-converted-space">  </span>z = f ( i .. n )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span>J4 /\ J5</p>
+<p class="p2"><br></p>
+<p class="p1">We call J4 a glueing invariant.<span class="Apple-converted-space">  </span>It we should have one strong enough that the implementation does not have to mention abstract variables anymore.<span class="Apple-converted-space">  </span>We will now study how to enforce invariant J4 and J5.</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span>J4'</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ Expand }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>x' = f ( 0 .. i' )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ P2 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>x &lt;- y = f ( 0 .. i' )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ J4 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f ( 0 .. i ) &lt;- y = f ( 0 .. i' )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ G4:<span class="Apple-tab-span">	</span>y = f.i }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f ( 0 .. i ) &lt;- f.i = f ( 0 .. i' )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ (2) and (3) }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f ( 0 .. i + 1 ) = f ( 0 .. i' )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ P12: i' = i + 1 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span><b>true</b></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span>J5'</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ Expand }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>z' = f ( i' .. n )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ P8 and P12 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>w = f ( i + 1 .. n )</p>
+<p class="p1">=<span class="Apple-tab-span">	</span>G5</p>
+<p class="p2"><br></p>
+<p class="p1">And now for the termination condition:</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span>y -&gt; w = z</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ G4 and G5 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f.i -&gt; f ( i + 1 .. n ) = z</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ (3) }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f ( i .. n ) = z</p>
+<p class="p1">=<span class="Apple-tab-span">	</span>J5</p>
+<p class="p2"><span class="Apple-tab-span">	</span></p>
+<p class="p1"><span class="Apple-tab-span">	</span>¬ (G4<span class="Apple-converted-space">  </span>/\<span class="Apple-converted-space">  </span>G5)</p>
+<p class="p2"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span></p>
+<p class="p1">(* to be continued *)</p>
+<p class="p2"><br></p>
+<p class="p1">And finally, let's re-express the guards of the conditional statement.</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span>G1</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ Expand }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>y = word</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ G4 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f.i = word</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span>G2</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ Expand }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>y = op</p>
+<p class="p1">=<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>{ G4 }</p>
+<p class="p1"><span class="Apple-tab-span">	</span>f.i = op</p>
+<p class="p2"><br></p>
+<p class="p1">removing the variables x and z and the local constant y and w, we obtain the following program:</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-converted-space">  </span>i, c, d := 0, <b>false</b>, <b>true</b></p>
+<p class="p1"><span class="Apple-tab-span">	</span>; <b>while</b> i <span class="s1">≠ n <b>do</b></span></p>
+<p class="p3"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span> <span class="Apple-converted-space">  </span><b>if</b> f.i = word -&gt; c, d := d, <b>false</b></p>
+<p class="p3"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span> <span class="Apple-converted-space">  </span>[] f.i = op -&gt; c, d := <b>false</b>, c</p>
+<p class="p3"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span> <span class="Apple-converted-space">  </span><b>fi</b></p>
+<p class="p3"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>|| i := i + 1</p>
+<p class="p3"><span class="Apple-tab-span">	</span><span class="Apple-converted-space">  </span><b>od</b></p>
+</body>
+</html>

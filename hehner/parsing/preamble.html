@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="949.54">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    span.Apple-tab-span {white-space:pre}
+  </style>
+</head>
+<body>
+<p class="p1">The goal of the following note is to present the basis of the development of an expression parser by presenting first the development of the acceptor of a simplified language.<span class="Apple-converted-space">  </span>We start with an acceptor because we know that the validity of the input is an output of interest and can arguably be of great value later when developing the code for building a syntax tree.</p>
+<p class="p2"><br></p>
+<p class="p1">For our formal derivations, we try and work with Hehner's calculus.<span class="Apple-converted-space">  </span>Here is a short summary of the relations between predicates and programs.</p>
+<p class="p2"><br></p>
+<p class="p1"><b>Summary of Hehner's calculus</b></p>
+<p class="p2"><br></p>
+<p class="p1">A statement is a relation between initial values and final values of the state variables.<span class="Apple-converted-space">  </span>The final values are denoted by adding one prime to the name of the initial value.<span class="Apple-converted-space">  </span>In the case of named expressions (introduced using the colon notation)<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><b>end of summary</b></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><b>Summary of predicate logic operators</b></p>
+<p class="p2"><br></p>
+<p class="p1">=<span class="Apple-tab-span">	</span>Equality</p>
+<p class="p1">==<span class="Apple-tab-span">	</span>Equivalence: it has the same meaning has = but applies only to boolean operands and has a lesser precedence than all other logical operators</p>
+<p class="p1">/\<span class="Apple-tab-span">	</span>Conjunction</p>
+<p class="p1">\/<span class="Apple-tab-span">	</span>Disjunction:<span class="Apple-converted-space">  </span>we use the same precedence as with the conjunction to preserve as much as possible their symmetry</p>
+<p class="p1">==&gt;<span class="Apple-tab-span">	</span>Implication</p>
+<p class="p1">&lt;==<span class="Apple-tab-span">	</span>Consequence: this is used in proofs to allow using a layout which is more suited to the presentation of proofs that avoids pulling rabbits out of hats rather than keeping a discipline which is merely founded on a syntactic arbitrariness.</p>
+<p class="p1">( <b>E</b> x:<span class="Apple-converted-space">  </span>R:<span class="Apple-converted-space">  </span>T )<span class="Apple-tab-span">	</span>Existential quantification over range R of term T.<span class="Apple-converted-space">  </span>This is in general, the syntax used for iterated operators with <b>A</b> the symbol for universal quantification, +, that of sum and * that of product.</p>
+<p class="p2"><br></p>
+<p class="p1"><b>proofs</b></p>
+<p class="p2"><br></p>
+<p class="p1">We chose to present proofs as derivations of logical formulae<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><b>end of summary</b></p>
+</body>
+</html>
