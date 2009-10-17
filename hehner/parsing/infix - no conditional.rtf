@@ -1,0 +1,90 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 Removing the conditional statement\
+\
+Since the use of the conditional is used only to assign to boolean variables, it seems straightforward to try and simply introduce the condition in the expressions instead of selecting one of two very similar statements.\
+\
+(0)\
+	G1 /\\ Q1 /\\ Q3\
+=		\{ Identity of /\\ \}\
+	y = word   /\\   c' = (d /\\ true)   /\\   Q3\
+=		\{ Zero of /\\ \}\
+	y = word   /\\   c' = (d /\\ true)   /\\   d' = (c /\\ false)\
+=		\{ Leibniz and (2) see below \}\
+	y = word   /\\   c' = (d  /\\  y = word)   /\\   d' = (c /\\ y = op)\
+=		\{ P11: c' = (d  /\\  y = word)   /\\   d' = (c /\\ y = op) \}\
+	y = word   /\\   P11\
+\
+(1)\
+	G2 /\\ Q2 /\\ Q4\
+=		\{ Identity of /\\ \}\
+	y = op   /\\   Q2   /\\  d' = (c /\\ true)\
+=		\{ Zero of /\\ \}\
+	y = op   /\\   c' = (d /\\ false)   /\\   d' = (c /\\ true)\
+=		\{ Leibniz and (2) \}\
+	y = op   /\\   c' = (d /\\ y = word)   /\\   d' = (c /\\ y = op)\
+=		\{ P11 \}\
+	y = op   /\\   P11\
+\
+	P4\
+=		\{ (0) and (1) \}\
+	(y = op   /\\   P11)   \\/   (y = word   /\\   P11)\
+=		\{ Distributivity \}\
+	(y = op   \\/   y = word)   /\\   P11\
+=		\{ Alphabet \}\
+	P11\
+\
+(2)	y = op    \uc0\u8800 \u8800    y = word\
+
+\b \
+proof\
+
+\b0 \
+	(y = op)   \uc0\u8800 \u8800    (y = word)\
+=		\{ Alphabet \}\
+	(y = op   \uc0\u8800 \u8800    y = word)   /\\   (y = op   \\/   y = word)\
+=		\{ Distributivity \}\
+	((y = op   \uc0\u8800 \u8800    y = word)  /\\  y = op)   \\/   ((y = op   \u8800 \u8800    y = word)   /\\   y = word)\
+=		\{ Leibniz twice \}\
+	((op = op   \uc0\u8800 \u8800    "op = word")   /\\   y = op)   \\/   ((op = op   \u8800 \u8800    "op = word")   /\\   y = word))\
+=		\{ (D.9) twice \}\
+	y = op   \\/   y = word\
+
+\b \
+end\
+\
+
+\b0 Hence, the algorithm can be formulated as follows:\
+\
+	x, z, c, d := [], S, 
+\b false
+\b0 , 
+\b true
+\b0 \
+	; 
+\b while
+\b0  z \uc0\u8800  [] 
+\b do
+\b0 \
+		
+\b any
+\b0  y, w 
+\b where
+\b0 \
+			y -> w = z\
+		
+\b in
+\b0 \
+			x, z, c, d := x <- y, w, (d /\\ y = word), (c /\\ y = op)\
+		
+\b yna
+\b0 \
+	
+\b od
+\b0 \
+\
+There is a reason why we might prefer to keep the initial version of the algorithm though.  Having a conditional around the type of tokens can turn out to be handy if, as we plan to do, we want to change the language and add new kinds of tokens.  This note was mainly presented to show that it is possible to play with the shape of the program while preserving its correctness.}
