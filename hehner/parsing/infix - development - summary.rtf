@@ -1,0 +1,113 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww8620\viewh7060\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\b\fs24 \cf0 types\
+	
+\b0 Token\
+
+\b \
+constants
+\b0 \
+	L1, L2: Token --> |B\
+	word, op: Token\
+	S: seq (Token)\
+\
+
+\b dummies
+\b0 \
+	x: seq (Token)\
+	c, d: |B\
+	y: Token\
+	a: T\
+	b: seq (T)\
+\
+
+\b Propositions
+\b0 \
+(0)	L1.[word]\
+(1)	L1.(x <- op <- word)   ==   L1.x\
+(2)	L2.x   ==   L1.(x <- word)\
+(3)	y = word  \\/  y = op		("Alphabet")\
+\
+J1:	c == L1.x\
+J2: 	d == L2.x\
+\
+P1:	(c' = d  /\\  y = word)   \\/   (c' = 
+\b false
+\b0   /\\  y = op)\
+P2:	(x' = x <- y)\
+\
+(4)	P2 /\\ J2   ==>   ( J1'  ==  P1 )\
+(5)	L1.(x <- op) = 
+\b false\
+
+\b0 (6)	(   J1 /\\ J2 /\\ P2   ==>   ( P1 == J1' )   )  ==>  ( J1 /\\ J2 /\\ P1 /\\ P2   ==>   J1' )\
+(7)	P2 /\\ J1  ==>  ( J2'   ==   P3 )\
+(8)	L2.(x <- word) == 
+\b false
+\b0 \
+(9)	L2.(x <- op) == L1.x\
+\
+P3:	(y = word  /\\  d' = 
+\b false
+\b0 )   \\/   (y = op  /\\  d' = c)\
+\
+G1:	y = word\
+G2:	y = op\
+\
+Q1:	c' = d\
+Q2:	c' = 
+\b false
+\b0 \
+Q3:	d' = 
+\b false
+\b0 \
+Q4:	d' = c\
+\
+P4:	(G1  /\\  Q1  /\\  Q3)  \\/  (G2  /\\  Q2  /\\  Q4)\
+\
+(10)	P1 /\\ P3 = P4\
+(11)	G1  /\\  Q1  /\\  P3    ==    G1  /\\  Q1  /\\  Q3\
+(12)	G2  /\\  Q2  /\\  P3    ==    G2  /\\  Q2  /\\  Q4\
+(13)	y = word  /\\  y = op    ==    
+\b false
+\b0 \
+\
+P5:	x = []\
+P6:	c = 
+\b false
+\b0 \
+P7:	d = 
+\b true
+\b0 \
+\
+(14)	P5  ==>  ( J1  ==  P6 )\
+(15)	P6  ==>  ( J2  ==  P7 )\
+\
+J3:	x ++ z = S\
+\
+P8:	z' = w\
+\
+(16)	G3 /\\ P2 /\\ P8  ==>  ( J3'   ==   J3 )\
+\
+G3:	y -> w = z\
+\
+(17)	J3  ==  P10\
+(18)	( 
+\b E
+\b0  y, w, x', z', c' , d':: G3  /\\  P4  /\\  P8  /\\  P2 )  ==  z \uc0\u8800  []\
+(19)	\'ac G3  /\\  J1    ==>    ( J3    ==    x = S  /\\  c = L1. S ) \
+\
+P9:	( 
+\b E
+\b0  y, w:  G3:  P2  /\\  P4  /\\  P8 )\
+\
+P10:	z = S\
+\
+(20)	P8 /\\ G3  ==>  z' < z\
+(21)	b  <  a -> b\
+(22)	#b < #c    ==    b < c\
+}

@@ -1,0 +1,137 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 From the development of the acceptor for the language of expressions with infix operators, we go on to add prefix operators.  The main difference is that non empty strings of operators can separate words and an expression can be prefixed by a string of operators too.  Mainly, we can reflect those change by defining a different "almost expression" predicate.  A "well-formed expression" can then simply be defined as an "almost expression" appended with a word.  We will use L3 for the predicate of well-formed expressions and L4 for the predicate of almost expressions.  Also, we will refer to the results of the development of the acceptor of expressions by their number prefixed with "D.".\
+\
+(0)	L4.[]\
+(1)	L4.( x <- op )   ==   L4.x  \\/  L3.x\
+(2)	L3.( x <- word )    ==    L4.x\
+\
+We can mimic the development of the previous acceptor and introduce c and d at the same time with invariants J4 and J5.\
+\
+J4:	c == L3.x\
+J5:	d == L4.x\
+\
+(3)		J4'\
+	=		\{ P2 \}\
+		c' = L3.( x <- y )\
+	=		\{ Alphabet \}\
+		( y = word   \\/   y = op)   /\\   c' = L3.( x <- y )\
+	=		\{ Distributivity \}\
+		( y = word   /\\   c' = " L3.( x <- word ) " )   \\/   ( y = op   /\\   c' = " L3.( x <- op ) " )\
+	=		\{ (2) and (4); see below \}\
+		( y = word   /\\   c' = L4.x )   \\/   ( y = op   /\\   c' = 
+\b false
+\b0  )\
+	=		\{ J5 \}\
+		( y = word   /\\   c' = d )   \\/   ( y = op   /\\  c' = 
+\b false
+\b0  )\
+	=		\{  \}\
+		P1\
+\
+Although it is not obviously a consequence of our previous postulates, we introduce (4) because we know that an expression using infix and prefix operators cannot terminate with an operator.\
+\
+(4)	L3.( x <- op )   ==   
+\b false\
+\
+
+\b0 We continue with the preservation of invariant J5 where the derivation should be a bit more surprising because of (1).  Before we start, we can already see that we won't have enough postulates to manipulate an expression of the form L4.( x <- word ).  We can make a simple postulate right away.  If L4.x, then L3.( x <- word ) so we wouldn't be interested in having an expression which is at the same time well formed and almost well formed.  Otherwise, the word cannot be extended to become a well-formed expression so L4.( x <- word ) should be false no matter what value x has.\
+\
+(5)	L4.( x <- word )   ==   
+\b false
+\b0 \
+\
+(6)		J5'\
+	=		\{ P2 \}\
+		d' = L4.( x <- y )\
+	=		\{ Alphabet; Distributivity \}\
+		( y = word   /\\   d' = " L4.( x <- word ) " )   \\/   ( y = op   /\\   d' = " L4.( x <- op ) " )\
+	=		\{ (5) and (1) \}\
+		( y = word   /\\   d' = 
+\b false
+\b0  )   \\/   ( y = op   /\\   d' = ( " L4.x " \\/ " L3.x " ) )\
+	=		\{ J5 and J4 \}\
+		( y = word   /\\   d' = 
+\b false
+\b0  )   \\/   ( y = op   /\\   d' = ( d \\/ c ) )\
+	=	P11\
+\
+For the manipulation of the conditional, we will give a name to the last command:\
+\
+Q5:	d' = ( d \\/ c )\
+\
+We are now at a point of the development analogous to that where we merged the two conditionals in the previous one and we feel there is a much more profound theorem of programming that would avoid the same labor in the future.  In general, two conditionals with the same guards can be merged.  Let X1 and X2 be those conditionals:\
+\
+X1:	( Y1  /\\  Z1 )  \\/  ( Y2  /\\  Z2 )\
+X2:	( Y1  /\\  Z3 )  \\/  ( Y2  /\\  Z4 )\
+\
+with the Ys being the guards and the Zs being the commands.\
+\
+\
+(7)		X1 /\\ X2\
+	=		\{ Distributivity twice \}\
+		" ( Y1  /\\  Y1  /\\  Z1  /\\  Z3 ) \\/ ( Y1  /\\  Y2  /\\  Z1  /\\  Z4 ) " \\/ ( Y2  /\\  Z2  /\\  X2 )\
+	<==		\{ Strengthening \}\
+		( Y1  /\\  Z1  /\\  Z3 ) \\/ " ( Y2  /\\  Z2  /\\  X2 ) "\
+	=		\{ Distributivity \}\
+		( Y1  /\\  Z1  /\\  Z3 ) \\/ " ( Y2  /\\  Z2  /\\  Y1  /\\  Z3 ) \\/ ( Y2  /\\  Z2  /\\  Y2  /\\  Z4 ) "\
+	<==		\{ Strengthening \}\
+		( Y1  /\\  Z1  /\\  Z3 ) \\/ ( Y2  /\\  Z2  /\\  Z4 )\
+\
+This is not exactly what we proved previously but we felt that this version of the theorem, although weaker, was more generally applicable to programming.  While programming, it is always fine to merge two conditionals with identical guards and it does not matter whether or not the guards are disjoint whereas, in the previous theorem, we relied on the disjointedness of the guards.  This can also be useful for programming but the need to split a conditional seems less important.\
+\
+We now end up with the following conditional as part of the loop's body:\
+\
+P12:	( G1 /\\ Q1 /\\ Q3 )  \\/  ( G2 /\\ Q2 /\\ Q5 )\
+\
+Which gives us the following loop body:\
+\
+P13:	( 
+\b E
+\b0  y::  P2 /\\ P12 )\
+\
+If we are now interested in termination, we just have to add J8 guarded by G3 in the body of our loop and theorem (D.20) tells us that the loop terminates, theorem (D.16) tells us that the invariant J3 is preserved and, for that reason, we terminate in a state where x = S, therefore, invariant J4 tells us that c will be an accurate indication of whether or not S is well-formed.  Here is the actual code of the algorithm:\
+\
+	  x, z, c, d := [], S, 
+\b false
+\b0 , 
+\b true
+\b0 \
+	; 
+\b while
+\b0  z \uc0\u8800  [] 
+\b do
+\b0 \
+		
+\b any 
+\b0 y, w 
+\b where
+\b0 \
+			y -> w = z\
+		
+\b in
+\b0 \
+			   
+\b if
+\b0  y = word -> c, d := d, 
+\b false
+\b0 \
+			   [] y = op -> c, d := 
+\b false
+\b0 , c \\/ d\
+			   
+\b fi
+\b0 \
+			|| x, z := x <- y, w\
+		
+\b yna
+\b0 \
+	
+\b od
+\b0 \
+\
+In the precedent development, we managed to reuse some of the results of the development about infix operators but, still, it feels like we could have been more efficient.  We wrote 3 proofs, one of which is supports a general programming theorem that should have been made general already in the initial part of the development.  The proof about the preservation of J4 is very similar to that of the preservation of J1 but, yet, they are not referring to the same language and the number of the theorems they use cannot be the same.  It would be interesting to see what makes them similar.  Finally, the proof of (6) introduces the real variation in the program and is, therefore, the most important proof in this development.}

@@ -1,50 +1,11 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww13640\viewh11520\viewkind0
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\vieww9000\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\ql\qnatural
 
-\f0\fs24 \cf0 The goal of the following note is to present the basis of the development of an expression parser by presenting first the development of the acceptor of a simplified language.  We start with an acceptor because we know that the validity of the input is an output of interest and can arguably be of great value later when developing the code for building a syntax tree.\
-\
-For our formal derivations, we try and work with Hehner's calculus.  Here is a short summary of the relations between predicates and programs.\
-\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-
-\b \cf0 Summary of Hehner's calculus
-\b0 \
-\
-A statement is a relation between initial values and final values of the state variables.  The final values are denoted by adding one prime to the name of the initial value.  In the case of named expressions (introduced using the colon notation) \
-\
-
-\b end of summary
-\b0 \
-\
-\
-
-\b Summary of predicate logic operators
-\b0 \
-\
-=	Equality\
-==	Equivalence: it has the same meaning has = but applies only to boolean operands and has a lesser precedence than all other logical operators\
-/\\	Conjunction\
-\\/	Disjunction:  we use the same precedence as with the conjunction to preserve as much as possible their symmetry\
-==>	Implication\
-<==	Consequence: this is used in proofs to allow using a layout which is more suited to the presentation of proofs that avoids pulling rabbits out of hats rather than keeping a discipline which is merely founded on a syntactic arbitrariness.\
-( 
-\b E
-\b0  x:  R:  T )	Existential quantification over range R of term T.  This is in general, the syntax used for iterated operators with 
-\b A
-\b0  the symbol for universal quantification, +, that of sum and * that of product.\
-\
-
-\b proofs
-\b0 \
-\
-We chose to present proofs as derivations of logical formulae \
-\
-
-\b end of summary
-\b0 \
+\f0\fs24 \cf0 At first, we concentrate on a building an acceptor for a simplified version of the language.  This language includes only infix operators.  The following postulates should get us started on the development.\
 \
 (0)	L1.[ word ]\
 (1)	L1.( x <- op <- word )   ==   L1.x\
@@ -57,34 +18,35 @@ J1:	c == L1.x\
 \
 We use ' on J1 to mention that we are talking about the values of the state variables in a different state.  \
 \
-	J1'\
-=		\{  \}\
-	c' = L1.x'\
-=		\{ P2: x' = x <- y \}\
-	c' = L1.( x <- y )\
-=		\{ Alphabet \}\
-	c' = L1.( x <- y )   /\\   ( y = word  \\/  y = op )\
-=		\{ Distributivity of /\\ over \\/ \}\
-	( c' = "L1.( x <- word )"  /\\  y = word )   \\/   ( c' = "L1.( x <- op )"  /\\  y = op )\
-=		\{ (2) and (4); see below \}\
-	( c' = L2.x  /\\  y = word )  \\/  ( c' = 
+(4)		J1'\
+	=		\{  \}\
+		c' = L1.x'\
+	=		\{ P2: x' = x <- y \}\
+		c' = L1.( x <- y )\
+	=		\{ Alphabet \}\
+		c' = L1.( x <- y )   /\\   ( y = word  \\/  y = op )\
+	=		\{ Distributivity of /\\ over \\/ \}\
+		( c' = "L1.( x <- word )"  /\\  y = word )   \\/   ( c' = "L1.( x <- op )"  /\\  y = op )\
+	=		\{ (2) and (5); see below \}\
+		( c' = L2.x  /\\  y = word )  \\/  ( c' = 
 \b false
 \b0   /\\  y = op )\
-=		\{ J2:  d == L2.x \}\
-	( c' = d  /\\  y = word )  \\/  ( c' = 
+	=		\{ J2:  d == L2.x \}\
+		( c' = d  /\\  y = word )  \\/  ( c' = 
 \b false
 \b0   /\\  y = op )\
-=		\{ Let's call it P1 \}\
-	P1\
+	=		\{ Let's call it P1 \}\
+		P1\
 \
-The previous calculation of program P1 needs (4) which is not obviously entailed by our assumptions about the language but it still fits: no expressions with infix only operators can terminate with an operator.\
+The previous calculation of program P1 needs (5) which is not obviously entailed by our assumptions about the language but it still fits: no expressions with infix only operators can terminate with an operator.\
 \
-(4)	L1.( x <- op ) = 
+(5)	L1.( x <- op ) = 
 \b false
 \b0 \
 \
+\pard\pardeftab720\ql\qnatural
 
-\b Where are we headed?
+\b \cf0 Where are we headed?
 \b0  \
 We derived program P1 as one that preserves invariant J1.  The actual proof obligation for this is:\
 \
@@ -96,11 +58,11 @@ It can be understood as:\
 \
 We proved J1' == P1 under the hypothesis J2 and P2.  We know that adding hypothesis J1 would not harm the validity of the proof and we will say that we proved J1 /\\ J2 /\\ P2  ==>  ( P1 == J1' ).  \
 \
-	J1 /\\ J2 /\\ P2  ==>  " ( P1 == J1' ) "\
-==>		\{ Propositional calculus ( A == B ) ==> ( A ==> B ) \}\
-	J1 /\\ J2 /\\ P2  ==>  ( P1 ==> J1' )\
-=		\{ Shunting \}\
-	J1 /\\ J2 /\\ P1 /\\ P2  ==>  J1'\
+(6)		J1 /\\ J2 /\\ P2  ==>  " ( P1 == J1' ) "\
+	==>		\{ Propositional calculus \}\
+		J1 /\\ J2 /\\ P2  ==>  ( P1 ==> J1' )\
+	=		\{ Shunting \}\
+		J1 /\\ J2 /\\ P1 /\\ P2  ==>  J1'\
 \
 The invariant we rely on is stronger than that which we are enforcing.  To progress, we need to strengthen P1 /\\ P2 to allow us to preserve J2.\
 
@@ -109,33 +71,33 @@ The invariant we rely on is stronger than that which we are enforcing.  To progr
 \
 We introduced J2, which we will adopt as an invariant, and d, which we will adopt as a boolean state variable.  Let's see how we can preserve J2.  For this, we will assume J1, J2, P1 and P2.\
 \
-	J2'\
-=		\{ \}\
-	d' = L2.x'\
-=		\{ P2 \}\
-	d' = L2.( x <- y )\
-=		\{ Alphabet \}\
-	( y = word  \\/  y = op )   /\\   d' = L2.( x <- y )\
-=		\{ Distributivity \}\
-	( y = word  /\\  d' = " L2.( x <- word ) " )   \\/   ( y = op  /\\  d' = " L2.( x <- op ) " )\
-=		\{ (5) and (6); see below \}\
-	( y = word  /\\  d' = 
+(7)		J2'\
+	=		\{ \}\
+		d' = L2.x'\
+	=		\{ P2 \}\
+		d' = L2.( x <- y )\
+	=		\{ Alphabet \}\
+		( y = word  \\/  y = op )   /\\   d' = L2.( x <- y )\
+	=		\{ Distributivity \}\
+		( y = word  /\\  d' = " L2.( x <- word ) " )   \\/   ( y = op  /\\  d' = " L2.( x <- op ) " )\
+	=		\{ (8) and (9); see below \}\
+		( y = word  /\\  d' = 
 \b false 
 \b0 )   \\/   ( y = op  /\\  d' = L1.x )\
-=		\{ J1 \}\
-	( y = word  /\\  d' = 
+	=		\{ J1 \}\
+		( y = word  /\\  d' = 
 \b false 
 \b0 )   \\/   ( y = op  /\\  d' = c )\
-=		\{ Let's call it P3 \}\
-	P3\
+	=		\{ Let's call it P3 \}\
+		P3\
 \
-(5)	L2.( x <- word ) == 
+(8)	L2.( x <- word ) == 
 \b false
 \b0 \
 \
-	The proposition (5) does \
+	The proposition (8) does not come from our set of postulates but it supports the view that an expression cannot be at the same time well-formed and almost well-formed.\
 \
-(6)	L2.( x <- op ) == L1.x\
+(9)	L2.( x <- op ) == L1.x\
 \
 
 \b proof
@@ -148,11 +110,10 @@ We introduced J2, which we will adopt as an invariant, and d, which we will adop
 	L1.x\
 \
 
-\b end\
+\b end
+\b0 \
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-
-\b0 \cf0 	We see that P1 and P3 have the same shape and we will merge them together.  We will name their constituent to make the calculations simpler.\
+	We see that P1 and P3 have the same shape and we will merge them together.  We will name their constituent to make the calculations simpler.\
 \
 G1:	y = word\
 G2:	y = op\
@@ -166,30 +127,29 @@ Q3:	d' =
 \b0 \
 Q4:	d' = c\
 \
-	P1  /\\  P3\
-=		\{ Expand P1 \}\
-	( ( G1 /\\ Q1 )  \\/  ( G2 /\\ Q2 ) )  /\\  P3\
-=		\{ Distributivity \}\
-	"( G1 /\\ Q1 /\\ P3 )"  \\/  "( G2 /\\ Q2 /\\ P3 )"\
-=		\{ (7) and (8); see below \}\
-	( G1 /\\ Q1 /\\ Q3 ) \\/ ( G2 /\\ Q2 /\\ Q4 )\
-=		\{ Let's now call it P4 \}\
-	P4\
+(10)		P1  /\\  P3\
+	=		\{ Expand P1 \}\
+		( ( G1 /\\ Q1 )  \\/  ( G2 /\\ Q2 ) )  /\\  P3\
+	=		\{ Distributivity \}\
+		"( G1 /\\ Q1 /\\ P3 )"  \\/  "( G2 /\\ Q2 /\\ P3 )"\
+	=		\{ (11) and (12); see below \}\
+		( G1 /\\ Q1 /\\ Q3 ) \\/ ( G2 /\\ Q2 /\\ Q4 )\
+	=		\{ Let's now call it P4 \}\
+		P4\
 \
-(7)\
-	G1 /\\ Q1 /\\ P3\
-=		\{ Expand P3 \}\
-	G1 /\\ Q1 /\\ ( ( G1 /\\ Q3 ) \\/ ( G2 /\\ Q4 ) )\
-=		\{ Distributivity \}\
-	( G1 /\\ Q1 /\\ Q3 ) \\/ ( "G1 /\\ G2" /\\ Q1 /\\ Q4 )\
-=		\{ (9); see below \}\
-	G1 /\\ Q1 /\\ Q3\
+(11)		G1 /\\ Q1 /\\ P3\
+	=		\{ Expand P3 \}\
+		G1 /\\ Q1 /\\ ( ( G1 /\\ Q3 ) \\/ ( G2 /\\ Q4 ) )\
+	=		\{ Distributivity \}\
+		( G1 /\\ Q1 /\\ Q3 ) \\/ ( "G1 /\\ G2" /\\ Q1 /\\ Q4 )\
+	=		\{ (13); see below \}\
+		G1 /\\ Q1 /\\ Q3\
 \
-(8)	Analogous to (7)\
+(12)	Analogous to (11)\
 \
 In the "Alphabet" postulate, we did not mention that "word" and "op" are different tokens so we add a separate postulate here.\
 \
-(9)	x = word /\\ x = op    ==    
+(13)	x = word /\\ x = op    ==    
 \b false
 \b0 \
 \
@@ -212,9 +172,8 @@ The loop body that we have so far is:\
 	|	x, c, d\
 	]|\
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
-\b \cf0 Note
+\b Note
 \b0 : The previous brackets |[  _  |  _ ]| is an attempt at a clear notation to state what are the variables that the enclosing code is operating on.\
 
 \b end of note
@@ -244,8 +203,10 @@ Which is already
 \b false
 \b0 , c\
 		    
-\b fi\
-		
+\b fi
+\b0 \
+
+\b 		
 \b0 ||  x := x <- y\
 	
 \b yna
@@ -287,29 +248,29 @@ P5:	x = []\
 \
 We will now calculate initialization for c and d by substituting any reference to symbolic functions for expressions that are computable.\
 \
-	J1\
-=		\{  \}\
-	c = L1." x "\
-=		\{ P5 \}\
-	c = " L1.[] "\
-=		\{ (10) see below \}\
-	c = 
+(14)		J1\
+	=		\{  \}\
+		c = L1." x "\
+	=		\{ P5 \}\
+		c = " L1.[] "\
+	=		\{ (21) see below \}\
+		c = 
 \b false
 \b0 \
-=	P6\
+	=	P6\
 \
-	J2\
-=		\{ \}\
-	d = L2." x "\
-=		\{ P5 \}\
-	d = " L2.[] "\
-=		\{ (2) with x := [] \}\
-	d = " L1.[word] "\
-=		\{ (0) \}\
-	d = 
+(15)		J2\
+	=		\{ \}\
+		d = L2." x "\
+	=		\{ P5 \}\
+		d = " L2.[] "\
+	=		\{ (2) with x := [] \}\
+		d = " L1.[word] "\
+	=		\{ (0) \}\
+		d = 
 \b true
 \b0 \
-=	P7\
+	=	P7\
 \
 Therefore, starting in a state that satisfy P5 /\\ P6 /\\ P7 will establish the invariant J1 /\\ J2\
 \
@@ -321,18 +282,18 @@ J3:	x ++ z = S\
 \
 Let's see now see if we can maintain it.\
 \
-	J3'\
-=		\{  \}\
-	x' ++ z' = S\
-=		\{ P2 \}\
-	x <- y ++ z' = S\
-=		\{ Sequence theory \}\
-	x ++ y -> z' = S\
-=		\{ P8: z' = w; get the expression back in terms of pre-state \}\
-	x ++ y -> w = S\
-=		\{ G3: y -> w = z \}\
-	x ++ z = S\
-=	J3\
+(16)		J3'\
+	=		\{  \}\
+		x' ++ z' = S\
+	=		\{ P2 \}\
+		x <- y ++ z' = S\
+	=		\{ Sequence theory \}\
+		x ++ y -> z' = S\
+	=		\{ P8: z' = w; get the expression back in terms of pre-state \}\
+		x ++ y -> w = S\
+	=		\{ G3: y -> w = z \}\
+		x ++ z = S\
+	=	J3\
 \
 Let's now give a name to the body of the loop:\
 \
@@ -346,106 +307,106 @@ So far, we proved\
 \
 And, with the regular shunting argument, we conclude that G3 /\\ P8 /\\ P2 is the body of a loop which preserves J3.  We can investigate what values of z is suitable for starting the loop:\
 \
-	J3\
-=		\{ Expand \}\
-	x ++ z = S\
-=		\{ P5 \}\
-	[] ++ z = S\
-=		\{ Sequence theory \}\
-	z = S\
-=	P10\
+(17)		J3\
+	=		\{ Expand \}\
+		x ++ z = S\
+	=		\{ P5 \}\
+		[] ++ z = S\
+	=		\{ Sequence theory \}\
+		z = S\
+	=	P10\
 \
 Here is an interesting twist (at least, having done the development in different shapes before, I did not expect it):  if we try to prove that the body of the loop is executable, that is, if we try to see if we can find a final value for every program variable, we come down to a condition on which the execution rely.\
 \
-	( 
+(18)		( 
 \b E
 \b0  y, w, x', z', c', d':: G3  /\\  P4  /\\  P8  /\\  P2 )\
-=		\{ Trading \}\
-	( 
+	=		\{ Trading \}\
+		( 
 \b E
 \b0  y, w, x', z', c', d':  x' = x <- y:  G3  /\\  P4  /\\  P8 )\
-=		\{ One point rule: x' does not appear in the term;\
-			Trading \}\
-	( 
+	=		\{ One point rule: x' does not appear in the term;\
+				Trading \}\
+		( 
 \b E
 \b0  y, w, z', c', d':  z' = w:  G3  /\\  P4 )\
-=		\{ One point rule: z' does not appear in the term;\
-			Trading; Distributivity \}\
-	" ( 
+	=		\{ One point rule: z' does not appear in the term;\
+				Trading; Distributivity \}\
+		" ( 
 \b E
 \b0  y, w, c', d':  G3:  G1  /\\  Q1  /\\  Q3 ) "  \\/  " ( 
 \b E
 \b0  y, w, c', d':  G3:  G2  /\\  Q2  /\\  Q4 ) "\
-=		\{ Trading, twice \}\
-	" ( 
+	=		\{ Trading, twice \}\
+		" ( 
 \b E
 \b0  y, w, c', d':  Q1  /\\  Q3:  G1  /\\  G3 ) "  \\/  " ( 
 \b E
 \b0  y, w, c', d':  Q2  /\\  Q4:  G2  /\\  G3 ) "\
-=		\{ One point rule, twice \}\
-	( 
+	=		\{ One point rule, twice \}\
+		( 
 \b E 
 \b0 y, w::  G1  /\\  G3 )  \\/  ( 
 \b E
 \b0  y, w::  G2  /\\  G3 )\
-=		\{ Distributivity twice \}\
-	( 
+	=		\{ Distributivity twice \}\
+		( 
 \b E
 \b0  y, w::  G3  /\\  (G1  \\/  G2) )\
-=		\{ Alphabet \}\
-	( 
+	=		\{ Alphabet \}\
+		( 
 \b E 
 \b0 y, w::  y -> w = z )\
-=		\{ Sequence theory \}\
-	z \uc0\u8800  []\
+	=		\{ Sequence theory \}\
+		z \uc0\u8800  []\
 \
 We now see that the body of the loop is only executable provided z /= [] whose negation is a great candidate for a termination condition since we get the following postcondition from the invariant:\
 \
-	J3\
-=		\{ Expand \}\
-	x ++ z = S\
-=		\{ \'ac G3 \}\
-	x = S\
-=		\{ J1 \}\
-	x = S  /\\  c = L1.x\
-=		\{ Leibniz \}\
-	x = S  /\\  c = L1.S\
+(19)		J3\
+	=		\{ Expand \}\
+		x ++ z = S\
+	=		\{ \'ac G3 \}\
+		x = S\
+	=		\{ J1 \}\
+		x = S  /\\  c = L1.x\
+	=		\{ Leibniz \}\
+		x = S  /\\  c = L1.S\
 \
 For the final touch, we can prove the termination by finding a variant.  We know that sequences admit a well-founded order.  There are many ways in which we could define such an order but it turns out that we need very little details for our proof.  The variant that we choose is `z' and we will now prove that the body of the loop refines z /= []  ==>  z' < z.  \
 \
 Since there's only one assignment affecting z and that it is in a monotonic context with respect to implication, we will start our derivation with it.\
 \
-		z' < z\
+(20)		z' < z\
 	=		\{ P8 \}\
 		w < z\
 	=		\{ G3 \}\
 		w  <  y -> w\
-	=		\{ (10) see below \}\
+	=		\{ (21) see below \}\
 		
 \b true
 \b0 \
 \
-We needed (10) to complete our proof.\
+We needed (21) to complete our proof.\
 \
-(10)	b   <   a -> b\
+(21)	b   <   a -> b\
 \
 This states that prepending an item on a sequence makes it bigger.  To make sure that this is a partial order, we can strengthen its specification and say that all that matters for the order is the size of the sequence.\
 \
-(11)	#b < #c    ==    b < c\
+(22)	#b < #c    ==    b < c\
 \
-This is clearly a well-founded order.  From here we can derive (10).\
+This is clearly a well-founded order.  From here we can derive (21).\
 \
-	b   <   a -> b\
-=		\{ (11) \}\
-	#b   <   #( a -> b )\
-=		\{ Sequence theory \}\
-	#b   <   1 + #b\
-=		\{ Arithmetic \}\
-	
+		b   <   a -> b\
+	=		\{ (22) \}\
+		#b   <   #( a -> b )\
+	=		\{ Sequence theory \}\
+		#b   <   1 + #b\
+	=		\{ Arithmetic \}\
+		
 \b true
 \b0 \
 \
-We could have defined our well-founded order in many different ways as long as we could have derived (10) from it, it would have been sufficient.\
+We could have defined our well-founded order in many different ways as long as we could have derived (21) from it, it would have been sufficient.\
 \
 Hence, we proved termination and we can see that\
 \
@@ -456,7 +417,7 @@ Hence, we proved termination and we can see that\
 \b0 \
 	; 
 \b while
-\b0  z /= [] 
+\b0  z \uc0\u8800  [] 
 \b do
 \b0 \
 		
@@ -468,15 +429,15 @@ Hence, we proved termination and we can see that\
 		
 \b in
 \b0 \
-			   
+			  
 \b if
 \b0  y = word -> c, d := d, 
 \b false
 \b0 \
-			   [] y = op -> c, d := 
+			  [] y = op -> c, d := 
 \b false
 \b0 , d\
-			   
+			  
 \b fi
 \b0 \
 			|| x := x <- y\
@@ -488,4 +449,6 @@ Hence, we proved termination and we can see that\
 \b od
 \b0 \
 \
-ensures c == L1.S.  As a concluding note, we would like to remark that the choice of variables is merely for manipulative convenience: instead of keeping one explicit array with an index splitting it at the end of x and use a complex abstraction function for x and z, we named explicitly the values of interest in the invariant while leaving the freedom to the eventual implementor to use a variable change and obtain a more efficient data structure.  The emphasis here is that the important role of the variables is not that they denote values stored in the memory but that they represent values of interest to make the argument simple.}
+ensures c == L1.S.  As a concluding note, we would like to remark that the choice of variables is merely for manipulative convenience: instead of keeping one explicit array with an index splitting it at the end of x and use a complex abstraction function for x and z, we named explicitly the values of interest in the invariant while leaving the freedom to the eventual implementor to use a variable change and obtain a more efficient data structure.  The emphasis here is that the important role of the variables is not that they denote values stored in the memory but that they represent values of interest to make the argument simple.\
+\
+}

@@ -17,69 +17,74 @@ We want to start i with 0 so we will see what relation is necessary to relate it
 \
 P11:	i = 0\
 \
-	x = " [] "  /\\  z = " S "\
-=		\{ (1) and (0) \}\
-	x = f ( 0..0 )  /\\  z = f ( 0 .. n )\
-=		\{ P11 \}\
-	x = f ( 0..i )  /\\  z = f ( i .. n )\
-=	J4 /\\ J5\
+(4)		P5\
+	=		\{ (1) \}\
+		x = f ( 0..0 )\
+	=		\{ P11 \}\
+		x = f ( 0..i )\
+	=	J4\
+\
+(5)		P10\
+	=		\{ (0) \}\
+		z = f ( 0 .. n )\
+	=		\{ P11 \}\
+		J5\
 \
 We call J4 a glueing invariant.  It we should have one strong enough that the implementation does not have to mention abstract variables anymore.  We will now study how to enforce invariant J4 and J5.\
 \
-	J4'\
-=		\{ Expand \}\
-	x' = f ( 0 .. i' )\
-=		\{ P2 \}\
-	x <- y = f ( 0 .. i' )\
-=		\{ J4 \}\
-	f ( 0 .. i ) <- y = f ( 0 .. i' )\
-=		\{ G4:	y = f.i \}\
-	f ( 0 .. i ) <- f.i = f ( 0 .. i' )\
-=		\{ (2) and (3) \}\
-	f ( 0 .. i + 1 ) = f ( 0 .. i' )\
-=		\{ P12: i' = i + 1 \}\
-	
+(6)		J4'\
+	=		\{ Expand \}\
+		x' = f ( 0 .. i' )\
+	=		\{ P2 \}\
+		x <- y = f ( 0 .. i' )\
+	=		\{ J4 \}\
+		f ( 0 .. i ) <- y = f ( 0 .. i' )\
+	=		\{ G4:	y = f.i \}\
+		f ( 0 .. i ) <- f.i = f ( 0 .. i' )\
+	=		\{ (2) and (3) \}\
+		f ( 0 .. i + 1 ) = f ( 0 .. i' )\
+	=		\{ P12: i' = i + 1 \}\
+		
 \b true
 \b0 \
 \
-	J5'\
-=		\{ Expand \}\
-	z' = f ( i' .. n )\
-=		\{ P8 and P12 \}\
-	w = f ( i + 1 .. n )\
-=	G5\
+(7)		J5'\
+	=		\{ Expand \}\
+		z' = f ( i' .. n )\
+	=		\{ P8 and P12 \}\
+		w = f ( i + 1 .. n )\
+	=	G5\
 \
 And now for the termination condition:\
 \
-	y -> w = z\
-=		\{ G4 and G5 \}\
-	f.i -> f ( i + 1 .. n ) = z\
-=		\{ (3) \}\
-	f ( i .. n ) = z\
-=	J5\
+(8)		G3\
+	=		\{ G4 and G5 \}\
+		f.i -> f ( i + 1 .. n ) = z\
+	=			\{ (3) \}\
+		f ( i .. n ) = z\
+	=	J5\
 	\
-	\'ac (G4  /\\  G5)\
-		\
-	\'ac G3\
-=		\{ Expand \}\
-	y -> w = z\
-=		\{ G4 \
-\
-(* to be continued *)\
+(9)		z \uc0\u8800  []\
+	=		\{ J5 \}\
+		f ( i .. n ) \uc0\u8800  []\
+	=		\{ (1) \}\
+		i < n\
 \
 And finally, let's re-express the guards of the conditional statement.\
 \
-	G1\
-=		\{ Expand \}\
-	y = word\
-=		\{ G4 \}\
-	f.i = word\
+(10)		G1\
+	=		\{ Expand \}\
+		y = word\
+	=		\{ G4 \}\
+		f.i = word\
+	=	G6\
 \
-	G2\
-=		\{ Expand \}\
-	y = op\
-=		\{ G4 \}\
-	f.i = op\
+(11)		G2\
+	=		\{ Expand \}\
+		y = op\
+	=		\{ G4 \}\
+		f.i = op\
+	=	G7\
 \
 removing the variables x and z and the local constant y and w, we obtain the following program:\
 \
@@ -91,7 +96,7 @@ removing the variables x and z and the local constant y and w, we obtain the fol
 	; 
 \b while
 \b0  i 
-\fs26 \uc0\u8800  n 
+\fs26 < n 
 \b do
 \b0 \
 		   
