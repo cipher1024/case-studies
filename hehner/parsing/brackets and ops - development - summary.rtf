@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww9460\viewh10260\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\fs24 \cf0 (0)	y = op   \\/   y = word   \\/   y = bo   \\/   y = bc	("Alphabet")\
@@ -30,33 +30,26 @@
 \
 (2)	L1.x   ==   L2.0.x\
 \
-	("State disjointedness")\
-(3)	\'ac n > 0   \\/   \'ac L1.x  \\/  \'ac L2.n.x\
-(4)	\'ac L1.x  \\/  \'ac L3.n.x\
-(5)	n = m   \\/  \'acL2.n.x  \\/  \'acL2.m.x\
-(6)	n = m   \\/  \'acL3.n.x  \\/  \'acL3.m.x\
-(7)	\'acL2.n.x  \\/  \'acL3.m.x\
-\
 	("Initially")\
-(8)	L3.0.[]\
+(3)	L3.0.[]\
 \
 	("Transitions")\
-(9)	L3.n.( x <- word )   ==   
+(4)	L3.n.( x <- word )   ==   
 \b false
 \b0 \
-(10)	L3.n.( x <- op )   ==   L3.n.x \\/ L2.n.x\
-(11)	L3.( n+1 ).( x <- bo )   ==   L3.n.x\
-(12)	L3.n.( x <- bc )   ==   
+(5)	L3.n.( x <- op )   ==   L3.n.x \\/ L2.n.x\
+(6)	L3.( n+1 ).( x <- bo )   ==   L3.n.x\
+(7)	L3.n.( x <- bc )   ==   
 \b false
 \b0 \
-(13)	L2.n.( x <- word )   ==   L3.n.x\
-(14)	L2.n.( x <- op )   ==   
+(8)	L2.n.( x <- word )   ==   L3.n.x\
+(9)	L2.n.( x <- op )   ==   
 \b false
 \b0 \
-(15)	L2.n.( x <- bo )   ==   
+(10)	L2.n.( x <- bo )   ==   
 \b false
 \b0 \
-(16)	L2.( n+1 ).( x <- bc )   ==   L2.n.x\
+(11)	L2.n.( x <- bc )   ==   L2.( n + 1 ).x\
 \
 J6:	c = L2.n.x \
 J7:	d = L3.n.x\
@@ -70,21 +63,26 @@ Q6:	y = op  /\\  c' =
 \b false
 \b0 \
 Q7:	n' = n\
-Q8:	y = word  /\\  c' = d  \
+Q8:	y = word  /\\  c' = d  /\\  Q7\
 Q9:	y = bo  /\\  c' = 
 \b false
 \b0 \
-Q10:	n' = n + 1\
-Q11:	y = bc  /\\  c' = c\
+Q10:	n' = n - 1\
+Q11:	y = bc  /\\  c' = c  /\\  Q10\
 \
-(17)	P2   ==>   ( J6'  ==  K1 \\/ K2 \\/ K3 \\/ K4 )\
-(18)	K1 == Q6\
-(19)	J7 /\\ Q7   ==>   ( K2 == Q8 )\
-(20)	K3 == Q9\
-(21)	Q10 /\\ J6   ==>   ( K4 == Q11 )\
-(22)	J6 /\\ J7 /\\ P2 /\\ Q7 /\\ Q10   ==>   ( J6'  ==  Q6 \\/ Q8 \\/ Q9 \\/ Q11 )\
+P13:	Q6 \\/ Q8 \\/ Q9 \\/ Q11\
 \
-(23)	P2   ==>   ( J7'  ==  K5 \\/ K6 \\/ K7 \\/ K8 )\
+(12)	P2   ==>   ( J6'  ==  K1 \\/ K2 \\/ K3 \\/ K4 )\
+(13)	K1 == Q6\
+(14)	J7   ==>   ( Q8   ==>   K2 )\
+(15)	K3 == Q9\
+(16)	J6   ==>   ( Q11   ==>   K4 )\
+(17)	L2.0.( x <- bc )   ==   
+\b false
+\b0 	\
+(18)	J6 /\\ J7 /\\ P2   ==>   ( P13   ==>   J6' )\
+\
+(19)	P2   ==>   ( J7'  ==  K5 \\/ K6 \\/ K7 \\/ K8 )\
 \
 K5:	y = word  /\\  d' = L3.n'.( x <- word )\
 K6:	y = op  /\\  d' = L3.n'.( x <- op )\
@@ -94,16 +92,25 @@ K8:	y = bc  /\\  d' = L3.n'.( x <- bc )\
 Q12:	y = word /\\ d' = 
 \b false
 \b0 \
-Q13:	y = op  /\\  d' = ( c \\/ d )\
-Q14:	y = bo  /\\  d' = d\
-Q15:	y = bc /\\ d' = 
+Q13:	y = op  /\\  d' = ( c \\/ d )  /\\  Q7\
+Q14:	y = bo  /\\  d' = d  /\\  Q10\
+Q15:	y = bc  /\\  d' = 
 \b false
 \b0 \
 \
-(24)	K5 == Q12\
-(25)	J6 /\\ J7 /\\ Q7   ==>   ( K6 == Q13 )\
-(26)	J7 /\\ Q10   ==>   ( K7 == Q14 )\
-(27)	K8 == Q15\
-(28)	J6 /\\ J7 /\\ P2 /\\ Q7 /\\ Q10   ==>   ( J7'   ==   Q12 \\/ Q13 \\/ Q14 \\/ Q15 )\
+P14:	Q12 \\/ Q13 \\/ Q14 \\/ Q14\
 \
-}
+(20)	K5 == Q12\
+(21)	J6 /\\ J7   ==>   ( Q13   ==>   K6 )\
+(22)	J7   ==>   ( Q14   ==>   K7 )\
+(23)	K8 == Q14\
+(24)	J6 /\\ J7 /\\ P2   ==>   ( P14   ==>   J7' )\
+\
+X1:	( Y /\\ Z1 ) \\/ X3\
+X2:	( Y /\\ Z2 ) \\/ X4\
+\
+(25)	X1 /\\ X2   <==   ( Y /\\ Z1 /\\ Z2 ) \\/ ( X3 /\\ X4 )\
+\
+(26)	L1.S    ==    n = 0  /\\  c    ==    L1.S  ==>  n = 0\
+\
+J8:	}

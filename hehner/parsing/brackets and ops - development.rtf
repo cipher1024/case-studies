@@ -36,49 +36,39 @@ L1:	Well formed expression\
 L2:	last subexpression complete\
 L3:	ready for a new subexpression\
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-\cf0 To integrate the braces, we add the rules for addition and continuation.  An opening bracket can only be added when a expecting a new subexpression can (L3) and a subexpression is still expected afterwards.  A closing bracket can only be integrated when the last subexpression read is complete and it is considered that the last subexpression read is complete afterwards.  \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-\cf0 \
+To integrate the braces, we add the rules for addition and continuation.  An opening bracket can only be added when a expecting a new subexpression can (L3) and a subexpression is still expected afterwards.  A closing bracket can only be integrated when the last subexpression read is complete and it is considered that the last subexpression read is complete afterwards.  \
+\
 (2)	L1.x   ==   L2.0.x\
 \
-	("State disjointedness")\
-(3)	\'ac n > 0   \\/   \'ac L1.x  \\/  \'ac L2.n.x\
-(4)	\'ac L1.x  \\/  \'ac L3.n.x\
-(5)	n = m   \\/  \'acL2.n.x  \\/  \'acL2.m.x\
-(6)	n = m   \\/  \'acL3.n.x  \\/  \'acL3.m.x\
-(7)	\'acL2.n.x  \\/  \'acL3.m.x\
-\
 	("Initially")\
-(8)	L3.0.[]\
+(3)	L3.0.[]\
 \
 	("Transitions")\
-(9)	L3.n.( x <- word )   ==   
+(4)	L3.n.( x <- word )   ==   
 \b false
 \b0 \
-(10)	L3.n.( x <- op )   ==   L3.n.x \\/ L2.n.x\
-(11)	L3.(n+1).( x <- bo )   ==   L3.n.x\
-(12)	L3.n.( x <- bc )   ==   
+(5)	L3.n.( x <- op )   ==   L3.n.x \\/ L2.n.x\
+(6)	L3.( n+1 ).( x <- bo )   ==   L3.n.x\
+(7)	L3.n.( x <- bc )   ==   
 \b false
 \b0 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-\cf0 (13)	L2.n.( x <- word )   ==   L3.n.x\
-(14)	L2.n.( x <- op )   ==   
+(8)	L2.n.( x <- word )   ==   L3.n.x\
+(9)	L2.n.( x <- op )   ==   
 \b false
 \b0 \
-(15)	L2.n.( x <- bo )   ==   
+(10)	L2.n.( x <- bo )   ==   
 \b false
 \b0 \
-(16)	L2.(n+1).( x <- bc )   ==   L2.n.x\
+(11)	L2.n.( x <- bc )   ==   L2.( n+1 ).x\
 \
 So far so good.  We will keep the same scheme of variables used so far and use n as a new one.  We will now build a loop around  the following invariants.\
 \
 J6:	c = L2.n.x \
 J7:	d = L3.n.x\
 \
-(17)		J6'\
+(12)		J6'\
 	=		\{ P2 \}\
-		c' = L2.n'.(x <- y)\
+		c' = L2.n'.( x <- y )\
 	=		\{ Alphabet \}\
 			( y = op  /\\  c' = L2.n'.( x <- op ) )\
 		\\/	( y = word  /\\  c' = L2.n'.( x <- word ) )\
@@ -92,78 +82,78 @@ K2:	y = word  /\\  c' = L2.n'.( x <- word )\
 K3:	y = bo  /\\  c' = L2.n'.( x <- bo )\
 K4:	y = bc  /\\  c' = L2.n'.( x <- bc )\
 \
-(18)		K1\
-	=		\{ (14) \}\
+(13)		K1\
+	=		\{ (9) \}\
 		y = op /\\ c' = 
 \b false\
 	
 \b0 =	Q6\
 \
-(19)		K2\
-	=		\{ (13) \}\
+(14)		K2\
+	=		\{ (8) \}\
 		y = word /\\ c' = L3.n'.x\
-	=		\{ Q7:  n' = n; heading for J7 \}\
-		y = word /\\ c' = L3.n.x\
+	<==		\{ Strengthening with Q7:   n' = n; \
+				heading for J7 \}\
+		y = word /\\ c' = L3.n.x /\\ Q7\
 	=		\{ J7 \}\
-		y = word /\\ c' = d\
+		y = word /\\ c' = d /\\ Q7\
 	=	Q8\
 \
-(20)		K3\
-	=		\{ (16) \}\
+(15)		K3\
+	=		\{ (10) \}\
 		y = bo /\\ c' = 
 \b false
 \b0 \
 	=	Q9\
 \
-(21)		K4\
-	=		\{ Q10:  n' = n + 1; heading for (17) \}\
-		y = bc /\\ c' = L2.( n+1 ).(x <- bc)\
-	=		\{ (17) \}\
-		y = bc /\\ c' = L2.n.x\
-	=		\{ J6 \}\
-		y = bc /\\ c' = c\
+(16)		K4\
+	=		\{ Case analysis on n = 0;\
+				(11) is only applicable for n + 1 \}\
+		( K4  /\\  n > 0 )  \\/  ( K4  /\\  n = 0 )\
+	<==		\{ Strengthening with Q10:  n' = n - 1; \
+				heading for (12) \}\
+			n > 0  /\\  y = bc  /\\  c' = L2.( n-1 ).( x <- bc )  /\\  Q10\
+		\\/   	( n = 0  /\\  K4 )\
+	=			\{ (12) \}\
+			n > 0  /\\  y = bc  /\\  c' = L2.n.x  /\\  Q10\
+		\\/   	( n = 0  /\\  K4 )\
+	=			\{ J6 \}\
+			n > 0  /\\  y = bc  /\\  c' = c  /\\  Q10\
+		\\/	( n = 0  /\\  K4 )\
+	=			\{ (17) see below \}\
+			n > 0  /\\  y = bc  /\\  c' = c  /\\  Q10\
+		\\/	n = 0  /\\  y = bc  /\\  c' = 
+\b false\
+	
+\b0 =			\{ Distributivity \}\
+		y = bc  /\\  (		( n > 0  /\\  c' = c  /\\  Q10 )\
+				\\/	( n = 0  /\\  c' = 
+\b false
+\b0  ) )\
 	=	Q11\
 \
-We should now think of putting everything together.  The naive approach:\
+Since n is supposed to be a natural, we have to check whether it is null before decreasing it.  The postulate we had so far does not tell us what happens if we shift a closing bracket when all bracket pairs are matched.   We will simply consider that the expression is ill-formed.  Since shifting a closing bracket also disqualify the input as almost well-formed, after closing too many parenthesis, our input is doomed to be ill-formed forever.  Here is the additional postulate that makes sure of it.\
 \
-(22)		J6'\
-	=		\{ (17) \}\
+(17)	L2.0.( x <- bc )   ==   
+\b false
+\b0 	\
+\
+We should now think of putting everything together.  Because of the shape of double implication, we should be able to get out conditional together with P2 and the invariants to imply J6'\
+\
+(18)		J6'\
+	=		\{ (12) and P2 \}\
 		K1 \\/ K2 \\/ K3 \\/ K4\
-	=		\{ (18), (19), (20), (21) with assumptions J6, J7, P2, Q7, Q10 \}\
+	=		\{ (13) and (15) \}\
+		Q6 \\/ K2 \\/ Q9 \\/ K4\
+	<==		\{ (14) and J7 \}\
+		Q6 \\/ Q8 \\/ Q9 \\/ K4\
+	<==		\{ (16) and J6 \}\
 		Q6 \\/ Q8 \\/ Q9 \\/ Q11\
-\
-will not work because Q7 and Q10 contradict each other.  It is necessary to integrate Q7 with Q8 and Q10 with Q11 in such a way that we obtain a conditional which, put together with J6 and J7, implies J6'.\
-\
-(A)		J7 /\\ Q7   ==>   ( K2 == Q8 ) \
-	=		\{ Shunting yard \}\
-		J7   ==>   ( Q7   ==>   " ( K2 == Q8 ) " )\
-	==>		\{ Propositional calculus \}\
-		J7   ==>   " ( Q7   ==>   ( Q8 ==> K2 ) ) "\
-	=		\{ Shunting yard \}\
-		J7   ==>   ( Q7 /\\ Q8   ==>   K2 )\
-	=		\{ Shunting yard \}\
-		J7 /\\ Q7 /\\ Q8   ==>  K2\
-\
-(B)		Q10 /\\ J6   ==>   ( K4 == Q11 )\
-	=		\{ Shunting yard \}\
-		J6   ==>   ( Q10   ==>   " ( K4 == Q11 ) " )\
-	==>		\{ Propositional calculus \}\
-		J6   ==>   " ( Q10   ==>    ( Q11   ==>   K4 ) ) "\
-	=		\{ Shunting yard \}\
-		J6   ==>   ( Q10 /\\ Q11   ==>   K4 )\
-	=		\{ Shunting yard \}\
-		J6 /\\ Q10 /\\ Q11   ==>   K4\
-\
-If we put all the implications towards the K propositions together with a disjunction, we will get a conjunction of invariants and programs implying a disjunction of Ks which we can substitute for J6' using (17).\
-\
-(C)		(18) \\/ (A) \\/ (B) \\/ (20)\
-	=		\{ Propositional calculus \}\
-\
-(To be continued: the Qs should be united in a disjunction)\
+	=	P13\
 \
 And now for the preservation of J7.\
 \
-(23)		J7'\
+(19)		J7'\
 	=		\{ P2 \}\
 		d' = L3.n'.( x <- y )\
 	=		\{ Alphabet and distributivity \}\
@@ -179,47 +169,192 @@ K6:	y = op  /\\  d' = L3.n'.( x <- op )\
 K7:	y = bo  /\\  d' = L3.n'.( x <- bo )\
 K8:	y = bc  /\\  d' = L3.n'.( x <- bc )\
 \
-(24)		K5\
-	=		\{ (9) \}\
+(20)		K5\
+	=		\{ (4) \}\
 		y = word  /\\  d' = 
 \b false
 \b0 \
 	=	Q12\
 \
-(25)		K6\
-	=		\{ (10) \}\
+(21)		K6\
+	=		\{ (5) \}\
 		y = op  /\\  d' = ( L3.n'.x \\/ L2.n'.x )\
-	=		\{ Q7 \}\
-		y = op  /\\  d' = ( L3.n.x \\/ L2.n.x )\
+	<==		\{ Strengthening \}\
+		y = op  /\\  d' = ( L3.n.x \\/ L2.n.x )  /\\  Q7\
 	=		\{ J6 and J7 \}\
-		y = op  /\\  d' = ( c \\/ d )\
+		y = op  /\\  d' = ( c \\/ d )  /\\  Q7\
 	=	Q13\
 \
-(26)		K7\
-	=		\{ Q10 heading for (11) \}\
-		y = bo  /\\  d' = L3.( n+1 ).( x <- bo )\
-	=		\{ (11) \}\
-		y = bo  /\\  d' = L3.n.x\
+(22)		K7\
+	<==		\{ Strengthening;\
+				heading for (6) \}\
+		y = bo  /\\  d' = L3.( n+1 ).( x <- bo )  /\\  Q10\
+	=		\{ (6) \}\
+		y = bo  /\\  d' = L3.n.x  /\\  Q10\
 	=		\{ J7 \}\
-		y = bo  /\\  d' = d\
-	=	Q14\
+		y = bo  /\\  d' = d  /\\  Q10\
+	=	Q15\
 \
-(27)		K8\
-	=		\{ (11) \}\
+(23)		K8\
+	=		\{ (6) \}\
 		y = bc /\\ d' = 
 \b false
 \b0 \
-	=	Q15\
+	=	Q16\
 \
-(28)		J7'\
-	=		\{ (17) \}\
+(24)		J7'\
+	=		\{ (19) and P2 \}\
 		K5 \\/ K6 \\/ K7 \\/ K8\
-	=		\{ (24), (25), (26), (27) with assumptions J6, J7, P2, Q7, Q10 \}\
-		Q12 \\/ Q13 \\/ Q14 \\/ Q15\
+	=		\{ (20) and (23) \}\
+		Q12 \\/ K6 \\/ K7 \\/ Q16\
+	<==		\{ (21) assuming J6 /\\ J7 \}\
+		Q12 \\/ Q13 \\/ K7 \\/ Q16\
+	<==		\{ (22) assuming J7 \}\
+		Q12 \\/ Q13 \\/ Q15 \\/ Q16\
+	=	P14\
 \
-We have now the following two conditional statements which we can merge according to (P.7).\
+We have now the following two conditional statements which we would like to merge according to (P.7).  The theorem is stated in terms of conditionals with two branches.  Here is an attempt at generalizing it to cases of arbitrary number of branches.  We would have to apply it as many times as we have branches that we want to merge.\
 \
-Q16:	Q8 \\/ Q6 \\/ Q9 \\/ Q11\
-Q17:	Q12 \\/ Q12 \\/ Q13 \\/ Q14 \\/ Q15\
+X1:	( Y /\\ Z1 ) \\/ X3\
+X2:	( Y /\\ Z2 ) \\/ X4\
+\
+(25)		X1 /\\ X2\
+	=		\{ Distributivity \}\
+		( Y /\\ Z1 /\\ Z2 ) \\/ ( Y /\\ Z1 /\\ X4 ) \\/ ( Y /\\ Z2 /\\ X3 ) \\/ ( X3 /\\ X4 ) 	<==		\{ Strengthening \}\
+		( Y /\\ Z1 /\\ Z2 ) \\/ ( X3 /\\ X4 )\
+\
+Applying it four times to P13 /\\ P14 we obtain:\
+\
+Q17:	y = word  /\\  c' = d  /\\  d' = 
+\b false
+\b0   /\\  n' = n\
+Q18: y = op  /\\  c' = 
+\b false
+\b0   /\\  d' = ( c \\/ d )  /\\  n' = n\
+Q19: y = bo  /\\  c' = 
+\b false
+\b0   /\\  d' = d  /\\  n' = n + 1\
+Q20: y = bc  /\\  ( ( n > 0  /\\  c' = c  /\\  d' = 
+\b false
+\b0   /\\  n' = n - 1 )  \\/  ( n = 0  /\\  c' = 
+\b false
+\b0   /\\  d' = 
+\b false
+\b0  ) )\
+\
+As a matter of fact, we could rewrite Q17 \\/ Q18 by P12 /\\ n' = n.  We could give the rest a name too:\
+\
+P15:	Q19 \\/ Q20\
+\
+And the update of the control variables become:\
+\
+P16:	( P12 /\\ n' = n ) \\/ P15\
+\
+We then know that 
+\b do
+\b0  G3 /\\ P16 /\\ P2 /\\ P8 
+\b od 
+\b0 terminates in a state satisfying:\
+\
+R1:	c == L2.n.S\
+\
+We would like to know the truth of\
+\
+R2:	L1.S\
+\
+I've been struggling with the postcondition for a few hours before getting to the conclusion that I might not have enough knowledge.  Here is the more instructive theorem I could derive:\
+\
+(26)		L1.S   ==   n = 0  /\\  c\
+	=		\{ J6 and J3 with z = [] \}\
+		L1.S   ==   " n = 0  /\\  L2.n.S "\
+	=		\{ Leibniz \}\
+		L1.S   ==   n = 0  /\\  L2.0.S\
+	=		\{ (2) \}\
+		L1.S   ==   n = 0  /\\  L1.S\
+	=		\{ Implication \}\
+		L1.S   ==>   n = 0\
+\
+We have to conclude that my knowledge about n is not strong enough.  We have to prove that the algorithm terminates with n = 0 if L1.S is true.  Let's see if we could enforce a new invariant:\
+\
+J8':	L1.x  ==>  n = 0\
+\
+Since we don't have many properties about L1, the next best thing will be to express the property in terms of L2 and c.\
+\
+J8'':	L2.0.x   ==>   n = 0\
+J8:	c  /\\  n = 0    ==    L1.x\
+\
+		J8'\
+	=		\{ \
+		c'  /\\  n' = 0    ==    L1.x'\
+	=		\{ (2) \}\
+		c'  /\\  n' = 0    ==    L2.0.x'\
+	=		\{ J6 \}\
+		L2.n'.x'  /\\  n' = 0    ==    L2.0.x'\
+	=		\{ P2 \}\
+		L2.n'.( x <- y )  /\\  n' = 0    ==    L2.0.( x <- y )\
+		\
+\
+(* To be continued *)\
+\
+	  x, z, n, c, d := [], S, 0, 
+\b false
+\b0 , 
+\b true
+\b0 \
+	; 
+\b while
+\b0  z \uc0\u8800  [] 
+\b do
+\b0 \
+		
+\b any
+\b0  y, w 
+\b where
+\b0 \
+			y -> w = z\
+		
+\b in
+\b0 \
+			   
+\b if
+\b0  y = word ->\
+				c, d := d, 
+\b false\
+			   
+\b0 [] y = op ->\
+				c, d := 
+\b false
+\b0 , c \\/ d\
+			   [] y = bo ->\
+				c, n := 
+\b false
+\b0 , n + 1\
+			   [] y = bc ->\
+				
+\b if
+\b0  n > 0 ->\
+					d, n := 
+\b false
+\b0 , n - 1\
+				[] n = 0 ->\
+					   c, d := 
+\b false
+\b0 , 
+\b false
+\b0  \
+					|| n :| 
+\b true
+\b0 \
+				
+\b fi\
+			   fi
+\b0 \
+			|| x, z := x <- y, w\
+		
+\b yna
+\b0 \
+	  
+\b od
+\b0 \
 \
 }
