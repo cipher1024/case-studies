@@ -1,0 +1,225 @@
+
+
+Using the same assumption on the alphabet done in the previous two takes, we try to partition the problem differently.  Instead of having almost expressions and open expressions (those with a given number of parentheses left open), we keep to our old habit of leaving the pairs of parentheses unmentioned when it comes to classifying expressions according to whether or not they end with an infix operator.  Opening and closing parentheses will have no impact on these classification.  As far as we are concerned for now, we could be using the development for the acceptors completed so far.
+
+The addition we will make here is to have a count of the parenthesis left open.  This is still insufficient since any permutation of an equal number of opening and closing parenthesis will have the same count.  However, in the fact of counting matching parenthesis, a string that closes a pair of parentheses before opening it will pass through a state where the number of parentheses left open will be negative.  This will be noticeable if we also define a function that gives the minimum number of opened parentheses at any point of the string.
+
+We will add those details on the development of the acceptor with infix and prefix operators.  We postulate 
+
+(P.0), (P.1), (P.2), (P.4), (P.5)
+
+(0)	po.( x <- bc ) = po.x - 1
+(1)	po.( x <- bo ) = po.x + 1
+(2)	po.( x <- op ) = po.x
+(3)	po.( x <- word ) = po.x
+(4)	mi.( x <- bc ) = mi.x  min  po.( x <- bc )
+(5)	mi.( x <- bo ) = mi.x
+(6)	mi.( x <- op ) = mi.x
+(7)	mi.( x <- word ) = mi.x
+
+(8)	L0.x  ==  L3.x  /\  po.x = 0  /\  mi.x = 0
+(9)	L3.( x <- bo )   ==   false
+(10)	L3.( x <- bc )   ==   L3.x
+(11)	L4.( x <- bo )   ==   L4.x
+(12)	L4.( x <- bc )   ==   false
+
+J4:	c == L3.x
+J5:	d == L4.x
+
+For starter, we will have to redo the proof of preservation of J4 since the one given in the development of the second acceptor relies on the "alphabet" postulate which has to be dropped.  We will replace it by a guard :
+
+G1:	y = word  \/  y = op
+
+(13)		J4'
+	=		{ P2 }
+		c' = L3.( x <- y )
+	=		{ G1 }
+		( y = word   \/   y = op)   /\   c' = L3.( x <- y )
+	=		{ Distributivity }
+		( y = word   /\   c' = " L3.( x <- word ) " )   \/   ( y = op   /\   c' = " L3.( x <- op ) " )
+	=		{ (P.2) and (P.4) }
+		( y = word   /\   c' = L4.x )   \/   ( y = op   /\   c' = false )
+	=		{ J5 }
+		( y = word   /\   c' = d )   \/   ( y = op   /\  c' = false )
+	=		{  }
+		P1
+
+The same goes for J5.
+
+(14)		J5'
+	=		{ P2 }
+		d' = L4.( x <- y )
+	=		{ G1; Distributivity }
+		( y = word   /\   d' = " L4.( x <- word ) " )   \/   ( y = op   /\   d' = " L4.( x <- op ) " )
+	=		{ (P.5) and (P.1) }
+		( y = word   /\   d' = false )   \/   ( y = op   /\   d' = ( " L4.x " \/ " L3.x " ) )
+	=		{ J5 and J4 }
+		( y = word   /\   d' = false )   \/   ( y = op   /\   d' = ( d \/ c ) )
+	=	P11
+
+We will now have a look at the new cases that we have introduced.
+
+G2:	y = bo  \/  y = bc
+
+By virtue of our new alphabet, G1 \/ G2 is a theorem.  We will state this as an invariant instead of a postulate, to allow ourselves to throw it away if we need to change the alphabet.
+
+J6:	G1 \/ G2
+
+(15)		J4'
+	=		{ P2 }
+		c' = L3.( x <- y )
+	=		{ G2; Distributivity }
+		( y = bo  /\  c' = L3.( x <- bo ) )  \/  ( y = bc  /\  c' = L3.( x <- bc ) )
+	=		{ (9) and (10) }
+		( y = bo  /\  c' = false )  \/  ( y = bc  /\  c' = L3.x )
+	=		{ J4 }
+		( y = bo  /\  c' = false )  \/  ( y = bc  /\  c' = c )
+	=	P13
+
+(16)		J5'
+	=		{ P2 }
+		d' = L4.( x <- y )
+	=		{ G2; Distributivity }
+		( y = bo  /\  d' = L4.( x <- bo ) )  \/  ( y = bc  /\  d' = L4.( x <- bc ) )
+	=		{ (11) and (12) }
+		( y = bo  /\  d' = L4.x )  \/  ( y = bc  /\  d' = false )
+	=		{ J5 }
+		( y = bo  /\  d' = d )  \/  ( y = bc  /\  d' = false )
+	=	P14
+
+(C)		( J4'   <==   J4 /\ G2 /\ P2 /\ P13 ) /\ ( J4'   <==   J5 /\ G1 /\ P2 /\ P1 )
+	=		{ Predicate calculus }
+		( J4' \/ ¬ J4 \/ ¬ G2 \/ ¬ P2 \/ ¬ P13 ) /\ ( J4' \/ ¬ J5 \/ ¬ G1 \/ ¬ P2 \/ ¬ P1 )
+	==>		{ Weakening }
+		   ( J4' \/ ¬ J4 \/ ¬ J5 \/ ¬ G1 \/ ¬ G2 \/ ¬ P2 \/ ¬ P13 ) 
+		/\ ( J4' \/ ¬ J4 \/ ¬ J5 \/ ¬ G1 \/ ¬ G2 \/ ¬ P2 \/ ¬ P1 )
+	=		{ Distributivity }
+		J4' \/ ¬ J4 \/ ¬ J5 \/ ¬ G1 \/ ¬ G2 \/ ¬ P2 \/ ( ¬ P13 \/ ¬ P1 )
+	=		{ De Morgan }
+		J4' \/ ¬ J4 \/ ¬ J5 \/ ¬ G1 \/ ¬ G2 \/ ¬ P2 \/ ¬ ( P13 /\ P1 )
+	=		{ P19:  P13 /\ P1; J6; predicate calculus }
+		J4'   <==   J4 /\ J5 /\ J6 /\ P2 /\ P19
+
+Following the same shape of proof, we admit:
+
+(D)		J5'   <==   J4 /\ J5 /\ J6 /\ P2 /\ P20
+
+with:
+
+P20:	P11 /\ P14
+
+Now, we will introduce a variable to check if the parentheses are balanced.
+
+J7:	n = po.x
+
+(17)		J7'
+	=		{ P2 }
+		n' = po.( x <- y )
+	=		{ G2; distributivity }
+		( y = bo  /\  n' = po.( x <- bo ) )  \/  ( y = bc  /\  n' = po.( x <- bc ) )
+	=		{ (0) and (1) }
+		( y = bo  /\  n' = po.x - 1 )  \/  ( y = bc  /\  n' = po.x + 1 )
+	=		{ J7 twice }
+		( y = bo  /\  n' = n - 1 )  \/  ( y = bc  /\  n' = n + 1 )
+	=	P15
+
+(18)		J7'
+	=		{ P2 }
+		n' = po.( x <- y )
+	=		{ G1; distributivity }
+		( y = op  /\  n' = po.( x <- op ) )  \/  ( y = word  /\  n' = po.( x <- word ) )
+	=		{ (2) and (3) and J7 twice }
+		( y = op  /\  n' = n )  \/  ( y = word  /\  n' = n )
+	=	P16
+
+Let's now merge P15 and P16:
+
+(19)		( J7'   <==   J7 /\ G2 /\ P2 /\ P15 )  /\  ( J7'   <==   J7 /\ G1 /\ P2 /\ P16 )
+	=		{ Predicate calculus }
+		( J7' \/ ¬ J7 \/ ¬ G2 \/ ¬ P2 \/ ¬ P15 )  /\  ( J7' \/ ¬ J7 \/ ¬ G1 \/ ¬ P2 \/ ¬ P16 )
+	=		{ Distributivity of \/ over /\ }
+		J7' \/ ¬ J7 \/ ¬ P2 \/ "( ( ¬ G2 \/ ¬ P15 ) /\ ( ¬ G1 \/ ¬ P16 ) )"
+	=		{ De Morgan twice }
+		J7' \/ ¬ J7 \/ ¬ P2 \/ ¬ ( ( G2 /\ P15 ) \/ ( G1 /\ P16 ) )
+	==>		{ Strengthening twice; antimonotonicity }
+		J7' \/ ¬ J7 \/ ¬ P2 \/ ¬ ( ( J6 /\ P15 ) \/ ( J6 /\ P16 ) )
+	=		{ Distributivity and De Morgan }
+		J7' \/ ¬ J7 \/ ¬ P2 \/ ¬ J6 \/ ¬ ( P15 \/ P16 )
+	=		{ P17: P15 \/ P16 }
+		J7' \/ ¬ J7 \/ ¬ J6 \/ ¬ P2 \/ ¬ P17
+	=		{ Predicate Calculus }
+		J7'   <==   J7 /\ J6 /\ P2 /\ P17
+
+For the definition of L0, our language, we managed to implement L3 and po we now need to turn to mi.  The naive way of doing this would be to introduce a new counter but we can observe that the value of mi can only decrease and its start at zero.  The only thing that we need, then, is to remember whether or not mi.x is smaller than zero.
+
+J8:	b = ( mi.x < 0 )
+
+(20)		J8'
+	=		{ P2 }
+		b' = ( mi.( x <- y ) < 0 )
+	=		{ J6; distributivity }
+		    "( ( y = op \/ y = word \/ y = bo )  /\  b' = ( mi.( x <- op ) < 0 ) )"
+		\/  ( y = bc  /\  b' = "( mi.( x <- bc ) < 0 )" )
+	=		{ Leibniz }
+
+		assume 
+			y = op \/ y = word \/ y = bo
+		in
+			b' = mi.( x <- y ) < 0
+		=		{ (5), (6), (7) }
+			b' = mi.x < 0
+		=		{ J8 }
+			b' = b
+
+		*	mi.( x <- bc ) < 0
+		=		{ (4) }
+			mi.x min po.( x <- bc ) < 0
+		=		{ (21) see below }
+			mi.x < 0   \/   po.( x <- bc ) < 0
+		=		{ J8 and (0) }
+			b   \/   po.x - 1 < 0
+		=		{ J7 }
+			b   \/   n < 0
+
+	*	    ( ( y = op \/ y = word \/ y = bo )  /\  b' = b )
+		\/  ( y = bc  /\  b' = ( b  \/  n < 0 ) )
+	=		{ Distributivity }
+		    ( y = op  /\  b' = b )  
+		\/  ( y = word  /\  b' = b )  
+		\/  ( y = bo  /\  b' = b )  
+		\/  ( y = bc  /\  b' = ( b  \/  n - 1 < 0 ) )
+	=	P18
+
+(21)	x min y  <  z   ==   x < z  \/  y < z
+
+The theorems (C), (D), (19), (20) establish that P2 /\ P19 /\ P20 /\ P17 /\ P18 maintain the invariants J4, J5, J7 and J8.  J6 comes for free since it does not contain any variables.  We now need a more elegant composition of those programs.  In the part about prefix operators, we have a theorem exactly for this.
+
+P21:	y = bo  /\  c' = false  /\  d' = d  /\  n' = n - 1  /\  b' = b
+P22:	y = bc  /\  c' = c  /\  d' = false  /\  n' = n + 1  /\  b' = ( b  \/  n - 1 < 0 )
+P23:	y = word  /\  c' = d  /\  d' = false  /\  n' = n  /\  b' = b
+P24:	y = op  /\  c' = false  /\  d' = ( c \/ d )  /\  n' = n  /\  b' = b
+
+Therefore, we conclude:
+
+(22)	P17 /\ P18 /\ P19 /\ P20   <==   P21 \/ P22 \/ P23 \/ P24
+
+By conjoining the usual part with z, we get the following source code :
+
+	c, d, n, b := false, true, 0, false ;
+	while z ≠ [] do
+		any y, w where 
+			y -> w = z 
+		in
+			if y = bo -> 
+				c, n := false, n - 1
+			[] y = bc -> 
+				d, n, b := false, n + 1, b \/ ( n < 1 )
+			[] y = word -> 
+				c, d := d, false
+			[] y = op -> 
+				c, d := false, c \/ d
+			fi || 
+			x, z := x <- y, w
+		yna
+	od
+
