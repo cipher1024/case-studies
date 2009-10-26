@@ -12,16 +12,18 @@ We will add those details on the development of the acceptor with infix and pref
 (1)	po.( x <- bo ) = po.x + 1
 (2)	po.( x <- op ) = po.x
 (3)	po.( x <- word ) = po.x
-(4)	mi.( x <- bc ) = mi.x  min  po.( x <- bc )
-(5)	mi.( x <- bo ) = mi.x
-(6)	mi.( x <- op ) = mi.x
-(7)	mi.( x <- word ) = mi.x
+(4)	po.[] = 0
+(5)	mi.( x <- bc ) = mi.x  min  po.( x <- bc )
+(6)	mi.( x <- bo ) = mi.x
+(7)	mi.( x <- op ) = mi.x
+(8)	mi.( x <- word ) = mi.x
+(9)	mi.[] = 0
 
-(8)	L0.x  ==  L3.x  /\  po.x = 0  /\  mi.x = 0
-(9)	L3.( x <- bo )   ==   false
-(10)	L3.( x <- bc )   ==   L3.x
-(11)	L4.( x <- bo )   ==   L4.x
-(12)	L4.( x <- bc )   ==   false
+(10)	L0.x  ==  L3.x  /\  po.x = 0  /\  mi.x = 0
+(11)	L3.( x <- bo )   ==   false
+(12)	L3.( x <- bc )   ==   L3.x
+(13)	L4.( x <- bo )   ==   L4.x
+(14)	L4.( x <- bc )   ==   false
 
 J4:	c == L3.x
 J5:	d == L4.x
@@ -30,7 +32,7 @@ For starter, we will have to redo the proof of preservation of J4 since the one 
 
 G1:	y = word  \/  y = op
 
-(13)		J4'
+(15)		J4'
 	=		{ P2 }
 		c' = L3.( x <- y )
 	=		{ G1 }
@@ -46,7 +48,7 @@ G1:	y = word  \/  y = op
 
 The same goes for J5.
 
-(14)		J5'
+(16)		J5'
 	=		{ P2 }
 		d' = L4.( x <- y )
 	=		{ G1; Distributivity }
@@ -65,29 +67,29 @@ By virtue of our new alphabet, G1 \/ G2 is a theorem.  We will state this as an 
 
 J6:	G1 \/ G2
 
-(15)		J4'
+(17)		J4'
 	=		{ P2 }
 		c' = L3.( x <- y )
 	=		{ G2; Distributivity }
 		( y = bo  /\  c' = L3.( x <- bo ) )  \/  ( y = bc  /\  c' = L3.( x <- bc ) )
-	=		{ (9) and (10) }
+	=		{ (11) and (12) }
 		( y = bo  /\  c' = false )  \/  ( y = bc  /\  c' = L3.x )
 	=		{ J4 }
 		( y = bo  /\  c' = false )  \/  ( y = bc  /\  c' = c )
 	=	P13
 
-(16)		J5'
+(18)		J5'
 	=		{ P2 }
 		d' = L4.( x <- y )
 	=		{ G2; Distributivity }
 		( y = bo  /\  d' = L4.( x <- bo ) )  \/  ( y = bc  /\  d' = L4.( x <- bc ) )
-	=		{ (11) and (12) }
+	=		{ (13) and (14) }
 		( y = bo  /\  d' = L4.x )  \/  ( y = bc  /\  d' = false )
 	=		{ J5 }
 		( y = bo  /\  d' = d )  \/  ( y = bc  /\  d' = false )
 	=	P14
 
-(C)		( J4'   <==   J4 /\ G2 /\ P2 /\ P13 ) /\ ( J4'   <==   J5 /\ G1 /\ P2 /\ P1 )
+(19)		( J4'   <==   J4 /\ G2 /\ P2 /\ P13 ) /\ ( J4'   <==   J5 /\ G1 /\ P2 /\ P1 )
 	=		{ Predicate calculus }
 		( J4' \/ ¬ J4 \/ ¬ G2 \/ ¬ P2 \/ ¬ P13 ) /\ ( J4' \/ ¬ J5 \/ ¬ G1 \/ ¬ P2 \/ ¬ P1 )
 	==>		{ Weakening }
@@ -102,7 +104,7 @@ J6:	G1 \/ G2
 
 Following the same shape of proof, we admit:
 
-(D)		J5'   <==   J4 /\ J5 /\ J6 /\ P2 /\ P20
+(20)		J5'   <==   J4 /\ J5 /\ J6 /\ P2 /\ P20
 
 with:
 
@@ -112,7 +114,7 @@ Now, we will introduce a variable to check if the parentheses are balanced.
 
 J7:	n = po.x
 
-(17)		J7'
+(21)		J7'
 	=		{ P2 }
 		n' = po.( x <- y )
 	=		{ G2; distributivity }
@@ -123,7 +125,7 @@ J7:	n = po.x
 		( y = bo  /\  n' = n - 1 )  \/  ( y = bc  /\  n' = n + 1 )
 	=	P15
 
-(18)		J7'
+(22)		J7'
 	=		{ P2 }
 		n' = po.( x <- y )
 	=		{ G1; distributivity }
@@ -134,7 +136,7 @@ J7:	n = po.x
 
 Let's now merge P15 and P16:
 
-(19)		( J7'   <==   J7 /\ G2 /\ P2 /\ P15 )  /\  ( J7'   <==   J7 /\ G1 /\ P2 /\ P16 )
+(23)		( J7'   <==   J7 /\ G2 /\ P2 /\ P15 )  /\  ( J7'   <==   J7 /\ G1 /\ P2 /\ P16 )
 	=		{ Predicate calculus }
 		( J7' \/ ¬ J7 \/ ¬ G2 \/ ¬ P2 \/ ¬ P15 )  /\  ( J7' \/ ¬ J7 \/ ¬ G1 \/ ¬ P2 \/ ¬ P16 )
 	=		{ Distributivity of \/ over /\ }
@@ -154,7 +156,7 @@ For the definition of L0, our language, we managed to implement L3 and po we now
 
 J8:	b = ( mi.x < 0 )
 
-(20)		J8'
+(24)		J8'
 	=		{ P2 }
 		b' = ( mi.( x <- y ) < 0 )
 	=		{ J6; distributivity }
@@ -166,15 +168,15 @@ J8:	b = ( mi.x < 0 )
 			y = op \/ y = word \/ y = bo
 		in
 			b' = mi.( x <- y ) < 0
-		=		{ (5), (6), (7) }
+		=		{ (6), (7), (8) }
 			b' = mi.x < 0
 		=		{ J8 }
 			b' = b
 
 		*	mi.( x <- bc ) < 0
-		=		{ (4) }
+		=		{ (5) }
 			mi.x min po.( x <- bc ) < 0
-		=		{ (21) see below }
+		=		{ (25) see below }
 			mi.x < 0   \/   po.( x <- bc ) < 0
 		=		{ J8 and (0) }
 			b   \/   po.x - 1 < 0
@@ -190,9 +192,9 @@ J8:	b = ( mi.x < 0 )
 		\/  ( y = bc  /\  b' = ( b  \/  n - 1 < 0 ) )
 	=	P18
 
-(21)	x min y  <  z   ==   x < z  \/  y < z
+(25)	x min y  <  z   ==   x < z  \/  y < z
 
-The theorems (C), (D), (19), (20) establish that P2 /\ P19 /\ P20 /\ P17 /\ P18 maintain the invariants J4, J5, J7 and J8.  J6 comes for free since it does not contain any variables.  We now need a more elegant composition of those programs.  In the part about prefix operators, we have a theorem exactly for this.
+The theorems (19), (20), (23), (24) establish that P2 /\ P19 /\ P20 /\ P17 /\ P18 maintain the invariants J4, J5, J7 and J8.  J6 comes for free since it does not contain any variables.  We now need a more elegant composition of those programs.  In the part about prefix operators, we have a theorem exactly for this.
 
 P21:	y = bo  /\  c' = false  /\  d' = d  /\  n' = n - 1  /\  b' = b
 P22:	y = bc  /\  c' = c  /\  d' = false  /\  n' = n + 1  /\  b' = ( b  \/  n - 1 < 0 )
@@ -201,7 +203,7 @@ P24:	y = op  /\  c' = false  /\  d' = ( c \/ d )  /\  n' = n  /\  b' = b
 
 Therefore, we conclude:
 
-(22)	P17 /\ P18 /\ P19 /\ P20   <==   P21 \/ P22 \/ P23 \/ P24
+(26)	P17 /\ P18 /\ P19 /\ P20   <==   P21 \/ P22 \/ P23 \/ P24
 
 By conjoining the usual part with z, we get the following source code :
 
