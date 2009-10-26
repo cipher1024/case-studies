@@ -159,7 +159,7 @@ J8:	b = ( mi.x < 0 )
 		b' = ( mi.( x <- y ) < 0 )
 	=		{ J6; distributivity }
 		    "( ( y = op \/ y = word \/ y = bo )  /\  b' = ( mi.( x <- op ) < 0 ) )"
-		\/  ( y = bc  /\  b' = "( mi.( x <- bc ) < 0 )" )
+		\/  ( y = bc  /\  b' = "( mi.( x <- y ) < 0 )" )
 	=		{ Leibniz }
 
 		assume 
