@@ -48,22 +48,22 @@ J2:	d  ==>  ser.( def <- leaf ) = op -> x <- word\
 (11)		J1'\
 	=		\{ P2 \}\
 		c'  ==>  ser.def' = op -> x <- y\
-	=		\{ y = word \}\
+	=		\{ G1: y = word \}\
 		c'  ==>  ser.def' = op -> x <- word\
-	=		\{ P30: def' = def <- leaf \}\
+	=		\{ P3: def' = def <- leaf \}\
 		c'  ==>  ser.( def <- leaf ) = op -> x <- word\
-	=		\{ c' = d \}\
+	=		\{ P1: c' = d \}\
 		d  ==>  ser.( def <- leaf ) = op -> x <- word\
 	=	J2\
 \
 (12)		J2'\
 	=		\{ P2 \}\
 		d'  ==>  ser.( def' <- leaf ) = op -> x <- y <- word\
-	=		\{ y = op \}\
+	=		\{ G2: y = op \}\
 		d'  ==>  ser.( def' <- leaf ) = op -> x ++ [ op ] ++ [ word ]\
-	=		\{ (7), d' = c \}\
+	=		\{ (7), P2: d' = c \}\
 		c  ==>  ser.( def' <- leaf ) = op -> x ++ [ op ] ++ lin.leaf\
-	=		\{ J1 and P31: def' = def \}\
+	=		\{ J1 and P4: def' = def \}\
 		c  ==>  ser.( def <- leaf ) = ser.def ++ [ op ] ++ lin.leaf\
 	=		\{ (10) \}\
 		c  ==> true\
@@ -78,28 +78,51 @@ Merging this with what we already had for the acceptor of infix expressions, we 
 		c, d, def := d, false, def <- leaf\
 	[] y = op ->\
 		c, d := false, c\
-	fi\
+	fi ||\
+	x, z := x <- y, w\
 \
 If we want to terminate eventually, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branch, we could append or prepend our join to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and will therefore weaken the guard of the loop, therefore strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack.  On the other hand, we need at most one tree upon termination.  When it comes to termination, we can see that the two main branches have their own variants: z and def.  While the second branch does not modify z, the first one grows def so we can't just add the size of the two sequences to obtain a variant.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.\
 \
-For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.\
+For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.  Since we want the assign to del nonetheless, we can start with either the final or the initial value of the serialization of del and calculate the value it has as an expression in the other state.  The next derivation has been developed in the reverse order but it has been chosen to present it like this so that u and v are not pulled out of a hat.  However, the reverse order still has the advantage of announcing right away that the goal it to add a subtree.\
 \
-(14)		ser.del' = ser.del\
-	=		\{ Instantialte P32:  ( 
+(13)		ser.del\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 	=		\{ G3:  ( 
 \b E
 \b0  s, u, v::  s <- u <- v = del ) \}\
-		ser.del' = ser.( s <- u <- v )\
-	=		\{ P33:   del' = s <- btree.u.v \}\
-		ser.( s <- btree.u.v ) = ser.( s <- u <- v )\
-	\
-		ser.del'\
-	=		\{ P33: del' = s <- btree.u.v \}\
-		ser.( s <- btree.u.v )\
-	=		\{ (10) \}\
-		ser.s  ++  [ op ]  ++  lin.( btree.u.v )\
+		ser.( s <- u <- v )\
+	=		\{ (10) twice \}\
+		ser.s  ++  [ op ]  ++  lin.u  ++  [ op ]  ++  lin.v\
 	=		\{ (8) \}\
-		ser.s  ++  [ op ]  ++  lin.u ++ [op] \
-	=		\{ Instantialte P32:  ( 
+		ser.s  ++  [ op ]  ++  lin.( btree.u.v )\
+	=		\{ (10) \}\
+		ser.( s <- btree.u.v )\
+	=		\{ P5: del' = s <- btree.u.v \}\
+		ser.del'\
+\
+We then have:\
+\
+P5:	( 
 \b E
-\b0  s, u, v::  s <- u <- v = del ) \}\
-}
+\b0  s, u, v:  s <- u <- v = del:  del' = s <- btree.u.v )\
+P6:	c' = 
+\b false
+\b0 \
+P7:	d' = 
+\b false
+\b0 \
+P8:	x' = x <- y\
+P9:	z' = w\
+P10:	( (G1 /\\ P6 /\\ P1) \\/ (G2 /\\ P7 /\\ P2) ) /\\ P8 /\\ P9\
+\
+P11:	( P5 /\\ z' = z /\\ x' = x ) \\/ P10\
+\
+J3:	c == L1.x\
+J4: 	d == L2.x\
+J5:	x ++ z = S\
+\
+J6:	J1 /\\ J2 /\\ J3 /\\ J4 /\\ J5\
+\
+P12:	J6   ==>   [ \'ac G3' ] /\\ J6'\
+\
+(14)	P12   <==   P11 ; P12}

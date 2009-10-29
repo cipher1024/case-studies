@@ -1,0 +1,71 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 (0)	btree.x.y = btree.w.z    ==    x = w  /\\  y = z\
+(1)	btree.x.y \uc0\u8800  leaf\
+(2)	x < btree.x.y\
+(3)	y < btree.x.y\
+(4)	z < x  ==>  z < btree.x.y\
+(5)	z < y  ==>  z < btree.x.y\
+(6)	( 
+\b A
+\b0  x:  ( 
+\b A
+\b0  y:  y < x:  P.y ):  P.x )  ==>  ( 
+\b A
+\b0  x::  P.x )\
+(7)	lin.leaf = [ word ]\
+(8)	lin.( btree.x.y ) = lin.x ++ [ op ] ++ lin.y\
+\
+(9)	ser.[] = []\
+(10)	ser.( def <- t ) = ser.def ++ [ op ] ++ lin.t\
+\
+J1:	c   ==>   ser.def = op -> x\
+J2:	d   ==>   ser.( def <- leaf ) = op -> x <- word\
+\
+G1:	y = word\
+G2:	y = op\
+\
+P1:	c' = d\
+P2:	d' = c\
+\
+P3:	def' = def <- leaf\
+P4:	def' = def\
+\
+(11)	J2 /\\ G1 /\\ P2 /\\ P1 /\\ P3   ==>   J1'\
+(12)	J1 /\\ G2 /\\ P2 /\\ P4   ==>   J2'\
+\
+G3:	( 
+\b E
+\b0  s, u, v::  s <- u <- v = del )\
+\
+P5:	( 
+\b E
+\b0  s, u, v:  s <- u <- v = del:  del' = s <- btree.u.v )\
+\
+(13)	G3 /\\ P5   ==>   ser.del = ser.del'\
+\
+P6:	c' = 
+\b false
+\b0 \
+P7:	d' = 
+\b false
+\b0 \
+P8:	x' = x <- y\
+P9:	z' = w\
+P10:	( (G1 /\\ P6 /\\ P1) \\/ (G2 /\\ P7 /\\ P2) ) /\\ P8 /\\ P9\
+\
+P11:	( P5 /\\ z' = z /\\ x' = x ) \\/ P10\
+\
+J3:	c == L1.x\
+J4: 	d == L2.x\
+J5:	x ++ z = S\
+\
+J6:	J1 /\\ J2 /\\ J3 /\\ J4 /\\ J5\
+\
+P12:	J6   ==>   [ \'ac G3' ] /\\ J6'\
+\
+(14)	P12   <==   P11 ; P12}
