@@ -1,0 +1,105 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 We now turn to the problem of building a syntax to turn our acceptor into a parser.  As we did until now, we will keep this extension minimal.  Since we did not provide a way to distinguish operators or words among themselves, we will not keep any information on those.  All the information that we will have will be the shape of the syntax tree.  We will be able to add attributes to the tree when we need the information but we will delay it until then.\
+\
+Here is the definition of our syntax tree.\
+\
+tree ^= 	btree (l, r: tree)\
+	|	leaf\
+\
+We will make explicit the assumptions that we make on that structure:\
+\
+(0)	btree.x.y = btree.w.z    ==    x = w  /\\  y = z\
+(1)	btree.x.y \uc0\u8800  leaf\
+\
+We assume that the tree admits well-founded order:\
+\
+(2)	x < btree.x.y\
+(3)	y < btree.x.y\
+(4)	z < x  ==>  z < btree.x.y\
+(5)	z < y  ==>  z < btree.x.y\
+(6)	( 
+\b A
+\b0  x:  ( 
+\b A
+\b0  y:  y < x:  P.y ):  P.x )  ==>  ( 
+\b A
+\b0  x::  P.x )\
+\
+Finally, we define the linearization of trees:\
+\
+(7)	lin.leaf = [ word ]\
+(8)	lin.( btree.x.y ) = lin.x ++ [ op ] ++ lin.y\
+\
+A simple approach to building a tree would be to keep the tree built so far in a variable t and to build a new node every time a word is scanned, as long as the input sting is accepted and assign t := btree.t.leaf.  It has the nice (?) property that it is a deterministic behavior but the class of trees it builds is largely uninteresting.  Instead, we will build a nondeterministic tree building that can build any appropriate syntax tree for a given input.  We defer to later the task of removing the nondeterminacy by introducing an appropriate criterion for choosing the tree that interests us among those that interest us.  At that point, for the ease of use of the language, it will be important that the tree be uniquely associated with the input string and that the choice be based on a very simple criterion.  An acceptable trade-off might be to reject input that the acceptor accepted in order to make the selection simple.\
+\
+For now, let's say that we will build a stack of trees that has not been aggregated, yet.  So we have two actions to perform on that stack, integrate new words as leaves and aggregate trees.\
+\
+(9)	ser.[] = []\
+(10)	ser.( def <- t ) = ser.def ++ [ op ] ++ lin.t\
+\
+J1:	c  ==>  ser.def = op -> x\
+J2:	d  ==>  ser.( def <- leaf ) = op -> x <- word\
+\
+(11)		J1'\
+	=		\{ P2 \}\
+		c'  ==>  ser.def' = op -> x <- y\
+	=		\{ y = word \}\
+		c'  ==>  ser.def' = op -> x <- word\
+	=		\{ P30: def' = def <- leaf \}\
+		c'  ==>  ser.( def <- leaf ) = op -> x <- word\
+	=		\{ c' = d \}\
+		d  ==>  ser.( def <- leaf ) = op -> x <- word\
+	=	J2\
+\
+(12)		J2'\
+	=		\{ P2 \}\
+		d'  ==>  ser.( def' <- leaf ) = op -> x <- y <- word\
+	=		\{ y = op \}\
+		d'  ==>  ser.( def' <- leaf ) = op -> x ++ [ op ] ++ [ word ]\
+	=		\{ (7), d' = c \}\
+		c  ==>  ser.( def' <- leaf ) = op -> x ++ [ op ] ++ lin.leaf\
+	=		\{ J1 and P31: def' = def \}\
+		c  ==>  ser.( def <- leaf ) = ser.def ++ [ op ] ++ lin.leaf\
+	=		\{ (10) \}\
+		c  ==> true\
+	=	true\
+\
+We used respectively y = word and y = op as hypotheses in the previous calculations.  What if we had swapped them?  In the conditional of the acceptor, in when y = op, c gets assigned false and when y = word, d gets assigned false so this falsify the premises respectively of J1 and J2 which enforces them.\
+\
+Before merging, we must notice that both assignments to def are relying on the value of y and a second condition, for which, nothing is specified for in the advent that it would become false.  In order to simplify the program, we will ignore the second conditions.  The effect will be that the program will be over-specific whenever the condition is false.\
+Merging this with what we already had for the acceptor of infix expressions, we get:\
+\
+	if y = word ->\
+		c, d, def := d, false, def <- leaf\
+	[] y = op ->\
+		c, d := false, c\
+	fi\
+\
+If we want to terminate eventually, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branch, we could append or prepend our join to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and will therefore weaken the guard of the loop, therefore strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack.  On the other hand, we need at most one tree upon termination.  When it comes to termination, we can see that the two main branches have their own variants: z and def.  While the second branch does not modify z, the first one grows def so we can't just add the size of the two sequences to obtain a variant.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.\
+\
+For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.\
+\
+(14)		ser.del' = ser.del\
+	=		\{ Instantialte P32:  ( 
+\b E
+\b0  s, u, v::  s <- u <- v = del ) \}\
+		ser.del' = ser.( s <- u <- v )\
+	=		\{ P33:   del' = s <- btree.u.v \}\
+		ser.( s <- btree.u.v ) = ser.( s <- u <- v )\
+	\
+		ser.del'\
+	=		\{ P33: del' = s <- btree.u.v \}\
+		ser.( s <- btree.u.v )\
+	=		\{ (10) \}\
+		ser.s  ++  [ op ]  ++  lin.( btree.u.v )\
+	=		\{ (8) \}\
+		ser.s  ++  [ op ]  ++  lin.u ++ [op] \
+	=		\{ Instantialte P32:  ( 
+\b E
+\b0  s, u, v::  s <- u <- v = del ) \}\
+}
