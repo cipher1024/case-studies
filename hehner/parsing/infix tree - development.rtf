@@ -83,13 +83,13 @@ Merging this with what we already had for the acceptor of infix expressions, we 
 \
 If we want to terminate eventually, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branch, we could append or prepend our join to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and will therefore weaken the guard of the loop, therefore strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack.  On the other hand, we need at most one tree upon termination.  When it comes to termination, we can see that the two main branches have their own variants: z and def.  While the second branch does not modify z, the first one grows def so we can't just add the size of the two sequences to obtain a variant.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.\
 \
-For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.  Since we want the assign to del nonetheless, we can start with either the final or the initial value of the serialization of del and calculate the value it has as an expression in the other state.  The next derivation has been developed in the reverse order but it has been chosen to present it like this so that u and v are not pulled out of a hat.  However, the reverse order still has the advantage of announcing right away that the goal it to add a subtree.\
+For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.  Since we want the assign to def nonetheless, we can start with either the final or the initial value of the serialization of def and calculate the value it has as an expression in the other state.  The next derivation has been developed in the reverse order but it has been chosen to present it like this so that u and v are not pulled out of a hat.  However, the reverse order still has the advantage of announcing right away that the goal it to add a subtree.\
 \
-(13)		ser.del\
+(13)		ser.def\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 \cf0 	=		\{ G3:  ( 
 \b E
-\b0  s, u, v::  s <- u <- v = del ) \}\
+\b0  s, u, v::  s <- u <- v = def ) \}\
 		ser.( s <- u <- v )\
 	=		\{ (10) twice \}\
 		ser.s  ++  [ op ]  ++  lin.u  ++  [ op ]  ++  lin.v\
@@ -97,25 +97,28 @@ For the actual code, we will start with the requirement that the serialization o
 		ser.s  ++  [ op ]  ++  lin.( btree.u.v )\
 	=		\{ (10) \}\
 		ser.( s <- btree.u.v )\
-	=		\{ P5: del' = s <- btree.u.v \}\
-		ser.del'\
+	=		\{ P6: def' = s <- btree.u.v \}\
+		ser.def'\
 \
 We then have:\
 \
-P5:	( 
-\b E
-\b0  s, u, v:  s <- u <- v = del:  del' = s <- btree.u.v )\
-P6:	c' = 
-\b false
-\b0 \
-P7:	d' = 
-\b false
-\b0 \
-P8:	x' = x <- y\
-P9:	z' = w\
-P10:	( (G1 /\\ P6 /\\ P1) \\/ (G2 /\\ P7 /\\ P2) ) /\\ P8 /\\ P9\
+G4:	s <- u <- v = def\
 \
-P11:	( P5 /\\ z' = z /\\ x' = x ) \\/ P10\
+P5:	def' = s <- btree.u.v\
+P6:	( 
+\b E
+\b0  s, u, v:  G4:  P5 )\
+P7:	c' = 
+\b false
+\b0 \
+P8:	d' = 
+\b false
+\b0 \
+P9:	x' = x <- y\
+P10:	z' = w\
+P11:	( (G1 /\\ P7 /\\ P1) \\/ (G2 /\\ P8 /\\ P2) ) /\\ P9 /\\ P10\
+\
+P12:	( P6 /\\ z' = z /\\ x' = x ) \\/ P11\
 \
 J3:	c == L1.x\
 J4: 	d == L2.x\
@@ -123,6 +126,148 @@ J5:	x ++ z = S\
 \
 J6:	J1 /\\ J2 /\\ J3 /\\ J4 /\\ J5\
 \
-P12:	J6   ==>   [ \'ac G3' ] /\\ J6'\
+P13:	J6   ==>   [ \'ac G3' ] /\\ J6'\
 \
-(14)	P12   <==   P11 ; P12}
+(14)	P13   <==   P12 ; P13\
+\
+Let's now compute the guard of P6 to confirm our suspicion that upon termination, we have only one tree left if the input word is accepted.\
+\
+(15)		( 
+\b E 
+\b0 def'::  P6 )\
+	=		\{ Merge quantifications \}\
+		( 
+\b E
+\b0  s, u, v, def':  s <- u <- v = def:  def' = s <- bree.u.v )\
+	=		\{ Trading twice, one point rule \}\
+		( 
+\b E 
+\b0 s, u, v::  s <- u <- v = def )\
+	=		\{ Split quantification \}\
+		( 
+\b E
+\b0  s::  ( 
+\b E
+\b0  u, v::  s <- u <- v = def ) )\
+	=		\{ Sequence theory \}\
+		( 
+\b E
+\b0  s::  #s + 2 = #def )\
+	=		\{ Length of sequence \}\
+		#def \uc0\u8805  2\
+\
+So the loops continues provided #def \uc0\u8805  2   \\/   z \u8800  [] so it terminates when  #def \u8804  1 /\\ z = [].  Therefore, we have at most one tree left.  Good!  We need to have one, at least if the input is accepted though.\
+\
+(16)		def \uc0\u8800  []\
+	<==		\{ Leibniz \}\
+		ser.def \uc0\u8800  []\
+	<==		\{ Sequence theory \}\
+		ser.def = op -> x\
+	<==		\{ J1 \}\
+		c\
+\
+With the termination condition, we can now conclude\
+\
+(17)		( 
+\b E
+\b0  t::  c   ==>   def = [ t ] )\
+\
+(18)		op -> S\
+	=		\{ J1, J5 with c and z = [] \}\
+		ser.def\
+	=		\{ (17) \}\
+		ser.( [] <- t )\
+	=		\{ (10) \}\
+		ser.[]  ++ [ op ] ++ lin.t\
+	=		\{ (9) \}\
+		op -> lin.t\
+\
+(19)		c\
+	==>		\{ J1 \}	\
+		ser.def = op -> S\
+	=		\{ Sequence theory \}\
+		S = lin.t\
+\
+We mentioned the new variant earlier but did not prove that is decreased.  We will first define the well founded order and then carry the proof for each branch.\
+\
+(20)	(z, def) < (z', def')    ==    z < z'  \\/  ( z = z' /\\ def < def' )\
+\
+We here use the principle that a lexicographical order on tuples whose elements admit a well-founded order is itself well-founded.\
+\
+(21)		(z', def') < (z, def)\
+	=		\{ (20) \}\
+		z' < z  \\/  ( z' = z  /\\  def' < def )\
+	<==		\{ Strengthening \}\
+		z' = z  /\\  def' < def\
+	=		\{ z' = z \}\
+		def' < def\
+	=		\{ P5 and G4 \}\
+		s <- btree.u.v   <   s <- u <- v\
+	=		\{ Sequence theory \}\
+		
+\b true
+\b0 \
+\
+(22)		(z', def') < (z, def)\
+	<==		\{ (20) and strengthening \}\
+		z' < z\
+	=		\{ P10 \}\
+		w < z\
+	=		\{ G5 \}\
+		w   <   y -> w\
+	=		\{ Sequence theory \}\
+		
+\b true
+\b0 \
+\
+Now, we know that our nondeterministic loop will terminate and produce a syntax tree if the input is correct.  It looks like this:\
+\
+	c, d, x, z, def := 
+\b false
+\b0 , 
+\b true
+\b0 , [], [], S\
+	
+\b while
+\b0  z \uc0\u8800  []   \\/   #def \u8805  2 
+\b do
+\b0 \
+		
+\b if
+\b0  
+\b any
+\b0  y, w 
+\b where
+\b0  y -> w = z 
+\b in
+\b0 \
+			
+\b if
+\b0  y = word -->\
+				c, d, def := d, 
+\b false
+\b0 , def <- leaf\
+			[] y = op ->\
+				c, d := 
+\b false
+\b0 , c\
+			
+\b fi
+\b0 \
+			||  x, z := x <- y, w\
+		[] 
+\b any
+\b0  s, u, v 
+\b where
+\b0  s <- u <- v = def 
+\b in
+\b0 \
+			del := s <- btree.u.v\
+		
+\b fi
+\b0 \
+	
+\b od
+\b0 \
+\
+It would be interesting now to see if any valid syntax tree can be generated by the parser.  This is because we will want to select particular trees later and we don't have enough information to know which one might be of interest.  We defer this decision to later.}
