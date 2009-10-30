@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\vieww9000\viewh8400\viewkind0
+\vieww13480\viewh11520\viewkind0
 \deftab720
 \pard\pardeftab720\ql\qnatural
 
@@ -44,9 +44,8 @@ The previous calculation of program P1 needs (5) which is not obviously entailed
 \b false
 \b0 \
 \
-\pard\pardeftab720\ql\qnatural
 
-\b \cf0 Where are we headed?
+\b Where are we headed?
 \b0  \
 We derived program P1 as one that preserves invariant J1.  The actual proof obligation for this is:\
 \
@@ -253,13 +252,19 @@ We will now calculate initialization for c and d by substituting any reference t
 		c = L1." x "\
 	=		\{ P5 \}\
 		c = " L1.[] "\
-	=		\{ (21) see below \}\
+	=		\{ (15) see below \}\
 		c = 
 \b false
 \b0 \
 	=	P6\
 \
-(15)		J2\
+Here is a postulate, not mentioned so far but that still makes sense for the grammar of interest.\
+\
+(15)	L1.[]   ==   
+\b false
+\b0 \
+\
+(16)		J2\
 	=		\{ \}\
 		d = L2." x "\
 	=		\{ P5 \}\
@@ -282,7 +287,7 @@ J3:	x ++ z = S\
 \
 Let's see now see if we can maintain it.\
 \
-(16)		J3'\
+(17)		J3'\
 	=		\{  \}\
 		x' ++ z' = S\
 	=		\{ P2 \}\
@@ -307,7 +312,7 @@ So far, we proved\
 \
 And, with the regular shunting argument, we conclude that G3 /\\ P8 /\\ P2 is the body of a loop which preserves J3.  We can investigate what values of z is suitable for starting the loop:\
 \
-(17)		J3\
+(18)		J3\
 	=		\{ Expand \}\
 		x ++ z = S\
 	=		\{ P5 \}\
@@ -318,7 +323,7 @@ And, with the regular shunting argument, we conclude that G3 /\\ P8 /\\ P2 is th
 \
 Here is an interesting twist (at least, having done the development in different shapes before, I did not expect it):  if we try to prove that the body of the loop is executable, that is, if we try to see if we can find a final value for every program variable, we come down to a condition on which the execution rely.\
 \
-(18)		( 
+(19)		( 
 \b E
 \b0  y, w, x', z', c', d':: G3  /\\  P4  /\\  P8  /\\  P2 )\
 	=		\{ Trading \}\
@@ -362,7 +367,7 @@ Here is an interesting twist (at least, having done the development in different
 \
 We now see that the body of the loop is only executable provided z /= [] whose negation is a great candidate for a termination condition since we get the following postcondition from the invariant:\
 \
-(19)		J3\
+(20)		J3\
 	=		\{ Expand \}\
 		x ++ z = S\
 	=		\{ \'ac G3 \}\
@@ -376,28 +381,28 @@ For the final touch, we can prove the termination by finding a variant.  We know
 \
 Since there's only one assignment affecting z and that it is in a monotonic context with respect to implication, we will start our derivation with it.\
 \
-(20)		z' < z\
+(21)		z' < z\
 	=		\{ P8 \}\
 		w < z\
 	=		\{ G3 \}\
 		w  <  y -> w\
-	=		\{ (21) see below \}\
+	=		\{ (22) see below \}\
 		
 \b true
 \b0 \
 \
-We needed (21) to complete our proof.\
+We needed (22) to complete our proof.\
 \
-(21)	b   <   a -> b\
+(22)	b   <   a -> b\
 \
 This states that prepending an item on a sequence makes it bigger.  To make sure that this is a partial order, we can strengthen its specification and say that all that matters for the order is the size of the sequence.\
 \
-(22)	#b < #c    ==    b < c\
+(23)	#b < #c    ==    b < c\
 \
-This is clearly a well-founded order.  From here we can derive (21).\
+This is clearly a well-founded order.  From here we can derive (22).\
 \
 		b   <   a -> b\
-	=		\{ (22) \}\
+	=		\{ (23) \}\
 		#b   <   #( a -> b )\
 	=		\{ Sequence theory \}\
 		#b   <   1 + #b\
@@ -406,7 +411,7 @@ This is clearly a well-founded order.  From here we can derive (21).\
 \b true
 \b0 \
 \
-We could have defined our well-founded order in many different ways as long as we could have derived (21) from it, it would have been sufficient.\
+We could have defined our well-founded order in many different ways as long as we could have derived (22) from it, it would have been sufficient.\
 \
 Hence, we proved termination and we can see that\
 \
