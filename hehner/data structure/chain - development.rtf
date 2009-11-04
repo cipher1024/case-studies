@@ -18,5 +18,14 @@ eliminate:	(
 \b A
 \b0  q:  q \uc0\u8800  p:  live.q = live'.q ) )\
 \
+attach:	( 
+\b E
+\b0  p, q::  attached'.p.q = attached.p.q + 1  /\\  ( A x, y:  x \uc0\u8800  p \\/ y \u8800  q:  attached.x.y = attached'.x.y ))\
+\
+detach:	( 
+\b E
+\b0  p, q:  attached.p.q > 0:  attached'.p.q = attached.p.q + 1  /\\  ( A x, y:  x \uc0\u8800  p \\/ y \u8800  q:  attached.x.y = attached'.x.y ))\
+\
+(* Note: if we mimic TLA and couple each action with an equivalent skip, we might avoid the overly complicated statement of frames. *)\
 \
  sketching  the structure with two variables and one invariant}
