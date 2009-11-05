@@ -6,26 +6,43 @@
 
 \f0\fs24 \cf0 The chain is a data structure of interest since it is used as the implementation of many different kinds of sequence based collections.  We will start by introducing the basis for structures around dynamically instantiated objects which is usually known as a heap.  We will use P as the type for pointers and live as a variable of type predicate over P that tells us at any given moment whether a certain pointer points to a live object.  There is not much to say about these two with nothing else so we will now introduce an operation to create an object and another one to eliminate one.\
 \
-create:	( 
-\b E
-\b0  p:  live.p = false:  live'.p = true  /\\  ( 
+C.p:		live.p = 
+\b false
+\b0   /\\  live'.p = 
+\b true
+\b0 \
+E.p:		live.p = 
+\b true
+\b0   /\\  live'.p = 
+\b false
+\b0 \
+K.p:		live.p = live'.p\
+\
+P1:	( 
 \b A
-\b0  q:  q \uc0\u8800  p: live.q = live'q ) )\
+\b0  p::  C.p \\/ E.p \\/ K.p )\
 \
-eliminate:	( 
-\b E
-\b0  p:  live.p = true:  live'.p = false /\\ ( 
+P1 can be understood as an action system: at any moment, any of the three actions can happen on any object.  We will now take a sequence variable x and implement it as a chain of objects.  What should the sequence contain?  One solution is to make our chain contain a generic value.  On the other hand, we can say that it does not contain anything and add content when we need to.  The last solution seems the most attractive one as it dispenses us to carry irrelevant content around.  The sequence that we implement will therefore contain the identity of the links associated with each position.  We now need three new variables: n, q and r respectively standing for the next link, the tail of a link and the root of a chain.  We have to introduce them in a certain order.  q should be defined in terms of n, n in terms of live and r in terms of x and q.  We will therefore start by introducing n with our first invariant.\
+\
+J1:	( 
 \b A
-\b0  q:  q \uc0\u8800  p:  live.q = live'.q ) )\
+\b0  p:  live.p:  live.( n.p ) )\
 \
-attach:	( 
+This isn't quite right.  We need the image of n to include one special item:  
+\b null
+\b0 .  There are two strategy to do so.  Either we define null as a constant of type P or we add a super type to P just to include null.  If we define null as a P, it has to remain live and it has to have a successor.  We will also need to associate a tail to it.  We will have to make a special case for the successor and the tail functions.  This is not very attractive but we might be able to live with it if we had too.  On the other hand, if we use a super type, every time we will use n in an expression, we will have to discard the case where the result might be null.  This might be a much bigger problem so we will define null as a special case of P.\
+\
+J2:	live.null\
+J3:	n.null = null\
+\
+For now, the only new operation that we can do is redirect the successor pointer of an object.\
+\
+P2.p:		( 
 \b E
-\b0  p, q::  attached'.p.q = attached.p.q + 1  /\\  ( A x, y:  x \uc0\u8800  p \\/ y \u8800  q:  attached.x.y = attached'.x.y ))\
+\b0  q::  live.p  /\\  live.q  /\\  p \uc0\u8800  null /\\ n'.p = q )\
+P3.p:		n'.p = n.p\
+P4:	( 
+\b A
+\b0  p::  P2.p \\/ P3.p )\
 \
-detach:	( 
-\b E
-\b0  p, q:  attached.p.q > 0:  attached'.p.q = attached.p.q + 1  /\\  ( A x, y:  x \uc0\u8800  p \\/ y \u8800  q:  attached.x.y = attached'.x.y ))\
-\
-(* Note: if we mimic TLA and couple each action with an equivalent skip, we might avoid the overly complicated statement of frames. *)\
-\
- sketching  the structure with two variables and one invariant}
+We now have to make sure that the allocation actions preserve J1, J2 and J3.}
