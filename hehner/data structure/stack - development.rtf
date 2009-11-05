@@ -1,0 +1,159 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10820\viewh8960\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 I'm now interested in the implementation of a stack.  A nice way to look at at stack is to view it as a machine with one sequence variable, let's call it x.  We will then push and pop items at one end of the sequence.  Which one should we take?  The fact that the choice is irrelevant should make us suspicious that a sequence is over specific.  On the other hand, we could see in the development of the parser that x and z could be viewed as stacks that are extended on opposite ends.  A plausible solution is to have a left and a right stack and implement one in terms of the other.  This is what we are going to do here.  Because of the availability of chains which are already biased towards the left.\
+\
+push:	( 
+\b E
+\b0  y:: x' = y -> x )\
+pop:		( 
+\b E
+\b0  y, z:  y -> z = x:  x' = z )\
+top:		( 
+\b E
+\b0  y, z:  y -> z = x:  r' = y  /\\  x' = x )\
+is_empty:	( r'   ==   x = [] )  /\\  x' = x\
+\
+These are specification of operations and they don't describe the whole problem.  For instance, it is not precise in the manner of what is internal non-determinacy and what is client provided parameter.  We will use the following syntax to make it a machine's interface\
+\
+	push (y) ^= \
+		x := y -> x\
+\
+	pop ^=\
+		
+\b any
+\b0  y, z 
+\b where
+\b0 \
+			y -> z = x\
+		
+\b in
+\b0 \
+			x := z\
+		
+\b end
+\b0 \
+\
+	top -> r ^=\
+		
+\b any
+\b0  y, z 
+\b where
+\b0 \
+			y -> z = x\
+		
+\b in
+\b0 \
+			r := y\
+		
+\b end
+\b0 \
+\
+	is_empty -> r ^=\
+		r := x = []\
+\
+We now should conclude that y is a input argument in push, r is an output argument for top and all the other variables which are quantified are simply encapsulated non-determinism.  Before continuing to implementation, it might be interesting to prove some of the classical properties of stack like the fact that a `pop' cancels a `push' and that a `top' will yield that last `push'ed item.\
+ \
+(0)		push (y); pop\
+	=		\{ Expand the definitions \}\
+		x := y -> x  ;  ( 
+\b E
+\b0  w, z:  w -> z = x:  x' = z )\
+	=		\{ Substitution \}\
+		( 
+\b E
+\b0  w, z:  w -> z = y -> x:  x' = z )\
+	=		\{ Sequence theory \}\
+		( 
+\b E
+\b0  w, z:  w = y  /\\  z = x:  x' = z )\
+	=		\{ One point rule, twice \}\
+		x' = x\
+	=		\{ Program notation \}\
+		skip\
+\
+(1)		push (y); r <- top\
+	=		\{ Expand the definitions \}\
+		x := y -> x  ;  ( 
+\b E
+\b0  w, z:  w -> z = x:  r' = w  /\\  x' = x )\
+	=		\{ Substitution \}\
+		( 
+\b E
+\b0  w, z:  w -> z = y -> x:  r' = w  /\\  x' = y -> x )\
+	=		\{ Sequence theory \}\
+		( 
+\b E
+\b0  w, z:  w = y  /\\  z = x:  r' = w  /\\  x' = y -> x )\
+	=		\{ One point rule \}\
+		r' = y  /\\  x' = y -> x\
+	=		\{ Program notation \}\
+		r, x := y, y -> x\
+\
+(2)		push (y) ; r <- is_empty\
+	=		\{ Expand the definitions \}\
+		x := y -> x  ;  ( r'   ==   x = [] )  /\\  x' = x\
+	==>		\{ Substitution \}\
+		( r'  ==   y -> x = [] )  /\\  x' = y -> x\
+	=		\{ Sequence theory \}\
+		r'  ==  
+\b false 
+\b0  /\\  x' = y -> x\
+	=		\{ Program notation \}\
+		r, x := 
+\b false
+\b0 , y -> x\
+\
+Let's wrap it up with a property about a longer program.\
+\
+(3)		r <- top  ;  pop  ;  push (r)\
+	=		\{ Expand top and pop \}\
+		( 
+\b E
+\b0  y, z:  y -> z = x:  r' = y )  /\\  x' = x  ;  ( 
+\b E
+\b0  y, z:  y -> z = x:  x' = z )  /\\  r' = r  ;  push (r)\
+	=		\{ Sequential composition \}\
+		( 
+\b E
+\b0  r'', x'':  ( 
+\b E
+\b0  y, z:  y -> z = x:  r'' = y )  /\\  x'' = x  /\\  ( 
+\b E
+\b0  y, z:  y -> z = x'':  x' = z )  /\\  r' = r'' )  ;  push (r)\
+	=		\{ One point rule on x'' \}\
+		( 
+\b E 
+\b0 r'':  ( 
+\b E
+\b0  y, z:  y -> z = x:  r'' = y  /\\  x' = z  /\\  r' = r'' ) )  ;  push (r)\
+	=		\{ One point rule on r'' \}\
+		( 
+\b E
+\b0  y, z:  y -> z = x:  r' = y  /\\  x' = z )  ;  push (r)\
+	=		\{ Sequential composition \}\
+		( 
+\b E
+\b0  r'', x''::  ( 
+\b E
+\b0  y, z:  y -> z = x:  r'' = y  /\\  x'' = z )  /\\  x' = r'' -> x''  /\\  r' = r'' )\
+	=		\{ Merge quantifications; one point rule, twice \}\
+		( 
+\b E
+\b0  y, z:  y -> z = x:  x' = y -> z  /\\  r' = y )\
+	=		\{ Leibniz, /\\ over 
+\b E 
+\b0 \}
+\b \
+		
+\b0 (
+\b  E 
+\b0 y, z:  y -> z = x:  r' = y )  /\\  x' = x\
+	=		\{ Definition of top \}\
+		r <- top\
+\
+\
+}
