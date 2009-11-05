@@ -1,25 +1,14 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\vieww9000\viewh8400\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\fs24 \cf0 For our formal derivations, we try and work with Hehner's calculus.  Here is a short summary of the relations between predicates and programs.\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
-\b \cf0 Summary of Hehner's calculus
-\b0 \
-\
-A statement is a relation between initial values and final values of the state variables.  The final values are denoted by adding one prime to the name of the initial value.  In the case of named expressions (introduced using the colon notation) \
-\
-
-\b end of summary
-\b0 \
-\
-\
-
-\b Summary of predicate logic operators
+\b \cf0 Summary of predicate logic operators
 \b0 \
 \
 =	Equality\
@@ -55,4 +44,38 @@ We chose to present proofs as derivations of logical formulae.  The general case
 	\
 \
 
-\b end of summary}
+\b end of summary\
+\
+Summary of Hehner's calculus
+\b0 \
+\
+Three notions are useful for Hehner's calculus: specifications and programs.  A specification is a boolean expression and a program is a special form of specification.  There is a programming language for which the statements can be associated with boolean expressions and it determines the class of predicates which are programs.  The specifications of interest define a relation between two states and the programs of interest refine a simple specification.\
+\
+Refinement between specifications is defined as implication: a specification refines another one if and only if its boolean expression implies that of the other specification.\
+\
+A program P operating on global variable v has the following expression:\
+\
+( 
+\b A
+\b0  v::  ( 
+\b E
+\b0  v'::  P ) )\
+\
+With v the initial value and v' the final value.\
+\
+P ; Q\
+\
+P [] Q\
+\
+P || Q\
+\
+do P od\
+\
+A statement is a relation between initial values and final values of the state variables.  The final values are denoted by adding one prime to the name of the initial value.  In the case of named expressions (introduced using the colon notation) \
+\
+A program \
+\
+
+\b end of summary
+\b0 \
+}
