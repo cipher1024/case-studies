@@ -53,9 +53,13 @@ From here we don't have much to do.  Maybe we could go further by setting oursel
 \
 	Z   ==   ( X /\\ Y ) \\/ Z\
 =		\{ Identity of \\/ \}\
-	false \\/ Z   ==   ( X /\\ Y ) \\/ Z\
+	
+\b false
+\b0  \\/ Z   ==   ( X /\\ Y ) \\/ Z\
 =		\{ \\/ over == \}\
-	( false   ==   X /\\ Y ) \\/ Z\
+	( 
+\b false
+\b0    ==   X /\\ Y ) \\/ Z\
 =		\{ Negation \}\
 	\'ac ( X /\\ Y ) \\/ Z\
 =		\{ De Morgan \}\
@@ -63,7 +67,11 @@ From here we don't have much to do.  Maybe we could go further by setting oursel
 =		\{ Implication twice \}\
 	X   ==>   ( Y   ==>   Z )\
 \
-The three last steps are the same as with the first attempt.  Why does the rewrite of the implication using disjunction is so much worse than that using conjunction?  A first plausible explanation might be that the almost distributivity of /\\ over == does most of the job.  It can't do because the rewrite with a conjunction adds more terms to eliminate than that with a disjunction.  The key difference here, I think, is that the use of distributivity took three steps and the rest was fairly straightforward.  Maybe the exposition would have been much briefer if the steps for making false appear and that of distributivity had been done in one shot and if == false had not been converted explicitly before applying De Morgan.\
+The three last steps are the same as with the first attempt.  Why does the rewrite of the implication using disjunction is so much worse than that using conjunction?  A first plausible explanation might be that the almost distributivity of /\\ over == does most of the job.  It can't do because the rewrite with a conjunction adds more terms to eliminate than that with a disjunction.  The key difference here, I think, is that the use of distributivity took three steps and the rest was fairly straightforward.  Maybe the exposition would have been much briefer if the steps for making 
+\b false
+\b0  appear and that of distributivity had been done in one shot and if == 
+\b false
+\b0  had not been converted explicitly before applying De Morgan.\
 \
 Simon Hudon\
 Meilen\
