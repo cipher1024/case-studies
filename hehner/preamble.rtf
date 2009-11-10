@@ -1,5 +1,6 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;}
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 AndaleMono;\f2\fnil\fcharset0 AppleSymbols;
+\f3\fnil\fcharset128 HiraKakuProN-W3;\f4\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;}
 \paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
@@ -11,17 +12,42 @@
 \b \cf0 Summary of predicate logic operators
 \b0 \
 \
-=	Equality\
-==	Equivalence: it has the same meaning has = but applies only to boolean operands and has a lesser precedence than all other logical operators\
-/\\	Conjunction\
-\\/	Disjunction:  we use the same precedence as with the conjunction to preserve as much as possible their symmetry\
-==>	Implication\
-<==	Consequence: this is used in proofs to allow using a layout which is more suited to the presentation of proofs that avoids pulling rabbits out of hats rather than keeping a discipline which is merely founded on a syntactic arbitrariness.\
+\'ac	\
+=	Equality.  It's negation is noted \uc0\u8800 \
+==(
+\f1\fs28 \uc0\u8801 
+\f0\fs24 )	Equivalence: it has the same meaning has = but applies only to boolean operands and has a lesser precedence than all other logical operators\
+/\\ (
+\f2 \uc0\u8743 
+\f0 )	Conjunction\
+\\/ (
+\f2 \uc0\u8744 
+\f0 )	Disjunction:  we use the same precedence as with the conjunction to preserve as much as possible their symmetry\
+==> (
+\f3\fs28 \'81\'cb
+\f0\fs24 )	Implication\
+<== (
+\f3\fs28 \uc0\u8656 
+\f0\fs24 )	Consequence: this is used in proofs to allow using a layout which is more suited to the presentation of proofs that avoids pulling rabbits out of hats rather than keeping a discipline which is merely founded on a syntactic arbitrariness.\
 ( 
 \b E
 \b0  x:  R:  T )	Existential quantification over range R of term T.  This is in general, the syntax used for iterated operators with 
 \b A
 \b0  the symbol for universal quantification, + or \uc0\u8721 , that of sum and * or \u8719  that of product.\
+\
+As a convention, it seems acceptable to use an operator over a domain D on operand of type F -->  D for any F.  In that case, the point-wise extension of the operator is assumed.  Formally, if the operator is 
+\f2 \uc0\u8857 
+\f0 , is closed over D, and that f and g are of type F --> D, f 
+\f2 \uc0\u8857 
+\f0  g is of type F --> D and\
+\
+	( f 
+\f2 \uc0\u8857 
+\f0  g ).x = f.x 
+\f2 \uc0\u8857 
+\f0  g.x\
+\
+In particular, this allows us to use boolean connectors on the characterization function of sets instead of using set operators.\
 \
 
 \b orders
@@ -29,9 +55,9 @@
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
-\f1 \cf0 \uc0\u8595 
+\f4 \cf0 \uc0\u8595 
 \f0 , 
-\f1 \uc0\u8593 
+\f4 \uc0\u8593 
 \f0  	respectively the supremum and the infimum of two elements.  Can be quantified like any binary, associative and symmetric operators\
 \
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
@@ -39,9 +65,41 @@
 \b \cf0 proofs
 \b0 \
 \
-We chose to present proofs as derivations of logical formulae.  The general case is to use equality preserving transformations, using equalities for example or to use monotonic contexts to build decreasing or increasing chains of formulae.\
+We chose to present proofs as derivations of logical formulae.  The general case is to use equality preserving transformations, using equalities for example or to use monotonic contexts to build decreasing or increasing chains of formulae.  This is normal use but, in principle, we just compose the relations which are not equality in the proof.  As an example, here is a proof in propositional calculus:\
 \
-	\
+		( X  ==>  Y ) /\\ ( Y ==>  Z )\
+	  =		\{ Implication \}\
+		( X  ==>  Y ) /\\ ( Y    ==    Y /\\ Z )\
+	  =		\{ Leibniz using second conjunct \}\
+		( X  ==>  Y /\\ Z ) /\\ ( Y    ==    Y /\\ Z )\
+	==>		\{ Weakening, twice \}\
+		X  ==>  Z\
+\
+Using the usual theorems of propositional calculus, this proof allows us to conclude\
+\
+	( X  ==>  Y ) /\\ ( Y  ==>  Z )   ==>   ( X  ==>  Z )\
+\
+We see the proof leads us through three transformations of the initial term ( X  ==>  Y ) /\\ ( Y  ==>  Z ) explaining each of them with short hints included between curly braces ( \{, \} ).  Two hints which might not be familiar to the reader who has his first contact with calculational proofs is Leibniz and (anti-)monotonicity, which is implicitly used in the last hint.  The Leibniz rule basically tells us that using an assumption stating equality, we can replace the occurrence one of the of the terms of the equality by its other term.  It is formalized by:\
+\
+	x = y   ==>   f.x = f.y\
+\
+considering each expressions as a function of its subexpressions.  On the other hand, we can also use order relations that way whenever a context is monotonic or anti-monotonic.  If \uc0\u8804  is our order relation, these notions are defined as follow:\
+\
+	f is monotonic:		x \uc0\u8804  y   ==>   f.x \u8804  f.y\
+	f is anti-monotonic:	x \uc0\u8804  y   ==>   f.y \u8804  f.x\
+\
+In the previous proof, these properties are relevant because conjunction is monotonic on both of its operands and implication is monotonic on its right operand and anti-monotonic on its left operand.\
+\
+Finally, it is important to notice the use of spacing to put emphasis on the correct parsing of the formula.  There is a precedence relationship which has not been made explicit yet but the spacing should make it obvious how we are supposed to read the formula.  In absence of parentheses, the rule is that an operator with higher precedence has less spacing to its operands than one with lower precedence.  This does not carry over parentheses; since their sole purpose is to force a particular parsing of formulae, no additional care is needed.  However, spaces can be used to enhance the ability of the reader to match opening parenthesis with its closing one.  This is general enough to use with any bracket syntax.  \
+\
+As might have been suspected, here are the rules for propositional calculus, from lower precedence to higher one.  Operators on the same line don't take precedence over each other.  Other rules will be necessary to distinguish them.\
+\
+	==\
+	==>, <==\
+	/\\, \\/\
+	\'ac\
+\
+Contrarily to many authors, an analogy is not made between the conjunction and disjunction pair and the multiplication and addition pair.  The important reason for that is that, whereas multiplication and addition are basically an hierarchy of operators, whereas the logical connectors are basically symmetric: they distribute over each other and many theorems involving them remain theorems if we substitute one connector for the other.  This is a symmetry that would have been hidden if we had given one connector a higher precedence than the other.  They are also the only associative connectors and, in chains of conjunctions or disjunction, pairs of operands won't be made explicit.\
 \
 
 \b end of summary\
@@ -53,27 +111,101 @@ Three notions are useful for Hehner's calculus: specifications and programs.  A 
 \
 Refinement between specifications is defined as implication: a specification refines another one if and only if its boolean expression implies that of the other specification.\
 \
-A program P operating on global variable v has the following expression:\
+The semantics of a program P operating on global variable v has the following semantics:\
 \
-( 
+	( 
 \b A
 \b0  v::  ( 
 \b E
 \b0  v'::  P ) )\
 \
-With v the initial value and v' the final value.\
+with v the initial value and v' the final value.  The corresponding code will be noted\
 \
-P ; Q\
+	
+\b global
+\b0 \
+		v\
+	
+\b in
+\b0 \
+		P\
+	
+\b end
+\b0 \
 \
-P [] Q\
+Such a program P can be an assignment:\
 \
-P || Q\
+	v := E\
 \
-do P od\
+with E an expression with only unprimed variables.  It's meaning is:\
 \
-A statement is a relation between initial values and final values of the state variables.  The final values are denoted by adding one prime to the name of the initial value.  In the case of named expressions (introduced using the colon notation) \
+	v' = E\
 \
-A program \
+For two programs P and Q working on variable v, you can have them executed one after the other which will be noted:\
+\
+	P ; Q\
+\
+and the corresponding semantics will be\
+\
+	( 
+\b E
+\b0  v''::  P [v' := v''] /\\ Q [v := v''] )\
+\
+We can also have a non-deterministic choice between the two of them with:\
+\
+	P [] Q\
+\
+with the associated semantics:\
+\
+	P  \\/  Q\
+\
+This is the basis for conditional statement\
+\
+	
+\b if 
+\b0 E -> P [] F -> Q 
+\b fi
+\b0 \
+\
+with E and F expressions over one state.  This is merely for actual code since the logic does not allow the discrimination between relations and expressions over state spaces whereas the programming language will usually not support expression that refer to more than one state or, for that matter, to specify which state is referred to in an expression.  In the previous case, the semantics would be:\
+\
+	( E /\\ P ) \\/ ( F /\\ Q )\
+\
+If E and F are disjoint, it is equivalent to:\
+\
+	( E ==> P ) /\\ ( F ==> Q )\
+\
+The latter is not so desirable since it excludes non-determinism which is desirable while designing programs since it allows one to postpone design decisions.  When P and Q operate on different variables, we can conceptually have them execute simultaneously.  When the programs are assignments and conditions, it is quite simple to linearize them afterwards and it could even be left to the compiler.  It can be written as:\
+\
+	P || Q\
+\
+with the special case:\
+\
+	a, b := E, F\
+\
+instead of\
+\
+	a := E  ||  b := F\
+\
+And we have loops:\
+\
+	
+\b do
+\b0  P 
+\b od
+\b0 \
+\
+For P working over v, we will note as G the condition under which P gives a result.\
+\
+	G    ==    ( 
+\b E
+\b0  v'::  P )\
+\
+The semantics would be \
+\
+	P1:	( G /\\ ( P ; P1 ) ) \\/ ( \'ac G /\\ skip )\
+\
+with skip being defined as v = v'.  In general, naming a program and terminating another one by a reference to it can be understood as putting a goto statement.  In low level implementation details, this might be suitable but using structured constructs makes it easier to reason about the program and this will usually preferred.  In particular, in case of loops, we can use the invariant technique where we weaken a postcondition to obtain an invariant and start proving that it is maintained by the loop that we're interested in (which does not exist yet) and, as we progress, we see that some progress necessitate the addition assumptions relating pre-state to post-state which then become part of the body of the loop.  Whenever hypotheses are necessary where only the pre-state is involved (which is not that rare) it means that the invariant is too weak and we need a new clause.  The creation of the loop then becomes a fix point procedure: we go on proving that the set of invariants is sufficient until no new ones are added.\
 \
 
 \b end of summary
