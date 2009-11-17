@@ -40,38 +40,35 @@ A simple approach to building a tree would be to keep the tree built so far in a
 For now, let's say that we will build a stack of trees that has not been aggregated, yet.  So we have two actions to perform on that stack, integrate new words as leaves and aggregate trees.\
 \
 (9)	ser.[] = []\
-(10)	ser.( def <- t ) = ser.def ++ [ op ] ++ lin.t\
+(10)	ser.( def ++ [ t ] ) = ser.def ++ lin.t ++ [ op ]\
 \
-J1:	c  ==>  ser.def = op -> x\
-J2:	d  ==>  ser.( def <- leaf ) = op -> x <- word\
+J1:	c  ==>  ser.def ++ lin.t = x\
+J2:	d  ==>  ser.def = x\
 \
 (11)		J1'\
 	=		\{ P2 \}\
-		c'  ==>  ser.def' = op -> x <- y\
+		c'  ==>  ser.def' ++ lin.t' = x ++ [ y ]\
 	=		\{ G1: y = word \}\
-		c'  ==>  ser.def' = op -> x <- word\
-	=		\{ P3: def' = def <- leaf \}\
-		c'  ==>  ser.( def <- leaf ) = op -> x <- word\
-	=		\{ P1: c' = d \}\
-		d  ==>  ser.( def <- leaf ) = op -> x <- word\
-	=	J2\
+		c'  ==>  ser.def' ++ lin.t' = x ++ [ word ]\
+	=		\{ P3: def' = def and PA: t' = leaf \}\
+		c'  ==>  ser.def ++ lin.leaf = x ++ [ word ]\
+	=		\{ P1: c' = d and (7) \}\
+		J2\
 \
 (12)		J2'\
 	=		\{ P2 \}\
-		d'  ==>  ser.( def' <- leaf ) = op -> x <- y <- word\
+		d'  ==>  ser.def' = x ++ [ y ]\
 	=		\{ G2: y = op \}\
-		d'  ==>  ser.( def' <- leaf ) = op -> x ++ [ op ] ++ [ word ]\
-	=		\{ (7), P2: d' = c \}\
-		c  ==>  ser.( def' <- leaf ) = op -> x ++ [ op ] ++ lin.leaf\
-	=		\{ J1 and P4: def' = def \}\
-		c  ==>  ser.( def <- leaf ) = ser.def ++ [ op ] ++ lin.leaf\
+		d'  ==>  ser.def' = x ++ [ op ]\
+	=		\{ P4: def' = def ++ [ t ], P2: d' = c \}\
+		c  ==>  ser.( def ++ [ t ] ) = x ++ [ op ]\
 	=		\{ (10) \}\
-		c  ==> true\
-	=	true\
+		c  ==>  ser.def ++ lin.t ++ [ op ] = x ++ [ op ]\
+	=		\{ Sequence theory \}\
+		J1\
 \
-We used respectively y = word and y = op as hypotheses in the previous calculations.  What if we had swapped them?  In the conditional of the acceptor, in when y = op, c gets assigned false and when y = word, d gets assigned false so this falsify the premises respectively of J1 and J2 which enforces them.\
+We used respectively y = word and y = op as hypotheses in the previous calculations.  What if we had swapped them?  In the conditional of the acceptor, when y = op, c gets assigned false and when y = word, d gets assigned false so this falsify the premises respectively of J1 and J2.  They are, therefore, trivially enforced them.\
 \
-Before merging, we must notice that both assignments to def are relying on the value of y and a second condition, for which, nothing is specified for in the advent that it would become false.  In order to simplify the program, we will ignore the second conditions.  The effect will be that the program will be over-specific whenever the condition is false.\
 Merging this with what we already had for the acceptor of infix expressions, we get:\
 \
 	if y = word ->\
@@ -81,7 +78,20 @@ Merging this with what we already had for the acceptor of infix expressions, we 
 	fi ||\
 	x, z := x <- y, w\
 \
-If we want to terminate eventually, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branch, we could append or prepend our join to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and will therefore weaken the guard of the loop, therefore strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack.  On the other hand, we need at most one tree upon termination.  When it comes to termination, we can see that the two main branches have their own variants: z and def.  While the second branch does not modify z, the first one grows def so we can't just add the size of the two sequences to obtain a variant.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.\
+If we want to terminate eventually, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branch, we could append or prepend our join to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and will weaken the guard of the loop, therefore strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack.  On the other hand, we need at most one tree upon termination.  \
+\
+When it comes to termination, we can see that the two main branches have their own variants: z and def.  While the second branch does not modify z, the first one makes def grow.  We can't just add the size of the two sequences to obtain a variant.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.\
+\
+Since we have t to stand for the top tree, we only need to remove one more tree from def to reduce it into a binary node.  We can make a first guess for a statement and a guard that would decrease def.\
+\
+PB:	def' = s\
+PC:	t' = btree.u.t\
+\
+GA:	def = s ++ [ u ]\
+\
+Since we change only def and t, we have no hope of transforming J1 into J2.  But this simplifies our calculations for the preservation of both invariants.  For J1, we will transform ser.def' ++ lin.t' into its unprimed version using only equality preserving transformations\
+\
+(A)		\
 \
 For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.  Since we want the assign to def nonetheless, we can start with either the final or the initial value of the serialization of def and calculate the value it has as an expression in the other state.  The next derivation has been developed in the reverse order but it has been chosen to present it like this so that u and v are not pulled out of a hat.  However, the reverse order still has the advantage of announcing right away that the goal it to add a subtree.\
 \
