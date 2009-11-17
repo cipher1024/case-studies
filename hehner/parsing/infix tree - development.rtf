@@ -1,17 +1,17 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\paperw11900\paperh16840\vieww9000\viewh8400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 We now turn to the problem of building a syntax to turn our acceptor into a parser.  As we did until now, we will keep this extension minimal.  Since we did not provide a way to distinguish operators or words among themselves, we will not keep any information on those.  All the information that we will have will be the shape of the syntax tree.  We will be able to add attributes to the tree when we need the information but we will delay it until then.\
+\f0\fs24 \cf0 We now turn to the problem of building a syntax and extend our acceptor into a parser.  As we did until now, we will keep this extension minimal.  Since we did not provide a way to distinguish operators or words among themselves, we will not keep any information on those.  All the information that we will have will be the shape of the syntax tree.  We will be able to add attributes to the tree when we need the information but we will delay it until then.\
 \
 Here is the definition of our syntax tree.\
 \
 tree ^= 	btree (l, r: tree)\
 	|	leaf\
 \
-We will make explicit the assumptions that we make on that structure:\
+We will make explicit the assumptions that we will use on that structure:\
 \
 (0)	btree.x.y = btree.w.z    ==    x = w  /\\  y = z\
 (1)	btree.x.y \uc0\u8800  leaf\
@@ -37,30 +37,34 @@ Finally, we define the linearization of trees:\
 \
 A simple approach to building a tree would be to keep the tree built so far in a variable t and to build a new node every time a word is scanned, as long as the input sting is accepted and assign t := btree.t.leaf.  It has the nice (?) property that it is a deterministic behavior but the class of trees it builds is largely uninteresting.  Instead, we will build a nondeterministic tree building that can build any appropriate syntax tree for a given input.  We defer to later the task of removing the nondeterminacy by introducing an appropriate criterion for choosing the tree that interests us among those that interest us.  At that point, for the ease of use of the language, it will be important that the tree be uniquely associated with the input string and that the choice be based on a very simple criterion.  An acceptable trade-off might be to reject input that the acceptor accepted in order to make the selection simple.\
 \
-For now, let's say that we will build a stack of trees that has not been aggregated, yet.  So we have two actions to perform on that stack, integrate new words as leaves and aggregate trees.\
+For now, let's say that we will build a stack def of trees for which the aggregation has been deferred.  So we have two actions to perform on def: integrate new words as leaves and aggregate trees.  \
+\
+In order to relate the def to the input we will introduce a serialization function and use it to formulate invariants.  \
+\
+It will be defined as the operator separated concatenation of the linearization of the trees def contains.  For simplicity, we add an operator at the end.  It will provide a valid serialization for the cases where L2.x as they end by an operator and to bridge the gap between this notion of serialization and words such that L1.x, we will add a tree variable t, for which we add the linearization after the serialization of def.\
 \
 (9)	ser.[] = []\
 (10)	ser.( def ++ [ t ] ) = ser.def ++ lin.t ++ [ op ]\
 \
-J1:	c  ==>  ser.def ++ lin.t = x\
-J2:	d  ==>  ser.def = x\
+	J1:	c  ==>  ser.def ++ lin.t = x\
+	J2:	d  ==>  ser.def = x\
 \
 (11)		J1'\
-	=		\{ P2 \}\
-		c'  ==>  ser.def' ++ lin.t' = x ++ [ y ]\
+	=		\{ P1: c' = d and P2: x' = x ++ [ y ] \}\
+		d  ==>  ser.def' ++ lin.t' = x ++ [ y ]\
 	=		\{ G1: y = word \}\
-		c'  ==>  ser.def' ++ lin.t' = x ++ [ word ]\
-	=		\{ P3: def' = def and PA: t' = leaf \}\
-		c'  ==>  ser.def ++ lin.leaf = x ++ [ word ]\
-	=		\{ P1: c' = d and (7) \}\
+		d  ==>  ser.def' ++ lin.t' = x ++ [ word ]\
+	=		\{ P3: def' = def and P4: t' = leaf \}\
+		d  ==>  ser.def ++ lin.leaf = x ++ [ word ]\
+	=		\{ (7) \}\
 		J2\
 \
 (12)		J2'\
-	=		\{ P2 \}\
-		d'  ==>  ser.def' = x ++ [ y ]\
+	=		\{ P5: d' = c and P2 \}\
+		c  ==>  ser.def' = x ++ [ y ]\
 	=		\{ G2: y = op \}\
-		d'  ==>  ser.def' = x ++ [ op ]\
-	=		\{ P4: def' = def ++ [ t ], P2: d' = c \}\
+		c  ==>  ser.def' = x ++ [ op ]\
+	=		\{ P6: def' = def ++ [ t ] \}\
 		c  ==>  ser.( def ++ [ t ] ) = x ++ [ op ]\
 	=		\{ (10) \}\
 		c  ==>  ser.def ++ lin.t ++ [ op ] = x ++ [ op ]\
@@ -72,74 +76,95 @@ We used respectively y = word and y = op as hypotheses in the previous calculati
 Merging this with what we already had for the acceptor of infix expressions, we get:\
 \
 	if y = word ->\
-		c, d, def := d, false, def <- leaf\
+		c, d, t := d, false, leaf\
 	[] y = op ->\
-		c, d := false, c\
+		c, d, def := false, c, def ++ [ t ]\
 	fi ||\
-	x, z := x <- y, w\
+	x, z := x ++ [ y ], w\
 \
-If we want to terminate eventually, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branch, we could append or prepend our join to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and will weaken the guard of the loop, therefore strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack.  On the other hand, we need at most one tree upon termination.  \
-\
-When it comes to termination, we can see that the two main branches have their own variants: z and def.  While the second branch does not modify z, the first one makes def grow.  We can't just add the size of the two sequences to obtain a variant.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.\
+If we want to end up with one tree for the whole input string, we need to merge trees from time to time.  Since it affects def and we already specified its final value for both branches, we could append or prepend our reduction to the program that we already have.  This could become complicated, especially around the termination because, as it stands, the loop terminates at the moment where z is empty.  Instead, we add another alternative that is to join two subtrees.  While one of the two other alternatives is activated whenever z is not empty, joining trees does not need that kind of assumption and we can weaken the guard of the loop, and strengthening its postcondition.  To merge subtrees, we need at least two trees in the stack, including t.  On the other hand, we need at most one tree upon termination which mean that def = [] will be sufficient.  \
 \
 Since we have t to stand for the top tree, we only need to remove one more tree from def to reduce it into a binary node.  We can make a first guess for a statement and a guard that would decrease def.\
 \
-PB:	def' = s\
-PC:	t' = btree.u.t\
+	P7:	def' = s\
+	P8:	t' = btree.u.t\
 \
-GA:	def = s ++ [ u ]\
+	G3:	def = s ++ [ u ]\
 \
 Since we change only def and t, we have no hope of transforming J1 into J2.  But this simplifies our calculations for the preservation of both invariants.  For J1, we will transform ser.def' ++ lin.t' into its unprimed version using only equality preserving transformations\
 \
-(A)		\
-\
-For the actual code, we will start with the requirement that the serialization of the stack is not changed and that all other variables are not changed either.  Since we want the assign to def nonetheless, we can start with either the final or the initial value of the serialization of def and calculate the value it has as an expression in the other state.  The next derivation has been developed in the reverse order but it has been chosen to present it like this so that u and v are not pulled out of a hat.  However, the reverse order still has the advantage of announcing right away that the goal it to add a subtree.\
-\
-(13)		ser.def\
-	=		\{ G3:  ( 
-\b E
-\b0  s, u, v::  s <- u <- v = def ) \}\
-		ser.( s <- u <- v )\
-	=		\{ (10) twice \}\
-		ser.s  ++  [ op ]  ++  lin.u  ++  [ op ]  ++  lin.v\
-	=		\{ (8) \}\
-		ser.s  ++  [ op ]  ++  lin.( btree.u.v )\
+(13)		ser.def' ++ lin.t'\
+	=		\{ P7 and P8 \}\
+		ser.s ++ lin.( btree.u.t )\
+	=		\{ (8) to switch u out of the lin term and\
+				put it in the ser tern \}\
+		ser.s ++ lin.u ++ [ op ] ++ lin.t\
 	=		\{ (10) \}\
-		ser.( s <- btree.u.v )\
-	=		\{ P6: def' = s <- btree.u.v \}\
-		ser.def'\
+		ser.( s ++ [ u ] ) ++ lin.t\
+	=		\{ G3 \}\
+		ser.def ++ lin.t\
 \
-We then have:\
+Adding a skip operation over c and x takes care of the rest of the invariant J1.  As for maintaining J2, we could use an analogous strategy but we see that x is unchanged and def is becoming smaller.  Adding a guard to that branch might as long as we don't prevent it to occur when necessary.  In other words, it should not weaken the postcondition.  \
 \
-	G4:	s <- u <- v = def\
+	G4:	d == false\
 \
-	P5:	def' = s <- btree.u.v\
-	P6:	( 
+Accumulating the guards of the loop will allow us to get to an exit condition.  The accumulated guard is:\
+\
+		( d == false /\\ ( 
 \b E
-\b0  s, u, v:  G4:  P5 )\
+\b0  s, u::  def = s ++ [ u ] ) ) \\/ z \uc0\u8800  []\
+\
+Which gives us the following exit condition:\
+\
+	G5:	( d \uc0\u8800 \u8800  false \\/ \'ac ( 
+\b E
+\b0  s, u::  def = s ++ [ u ] ) ) /\\ z = []\
+\
+		( d \uc0\u8800 \u8800  false \\/ "\'ac ( 
+\b E
+\b0  s, u::  def = s ++ [ u ] )" ) /\\ z = []\
+ 	=		\{ Sequence theory \}\
+		( d \uc0\u8800 \u8800  false \\/ def = [] ) /\\ z = []\
+	=		\{ JA: \'ac c \\/ \'ac d \}\
+		( \'ac c \\/ def = [] ) /\\ z = []\
+	==>		\{ J1 \}\
+		( c  ==>  lin.t = x ) /\\ z = []\
+	==>		\{ J5 \}\
+		c  ==>  lin.t = S\
+\
+This is exactly the postcondition we are interested in.  To reach it, we introduced invariant JA which is clearly established by the initialization.  In addition, whenever c or d are assigned to, one of them is assigned false which also takes care of it.\
+\
+In short, the effect new branch can be summarized by:\
+\
+	P9:	P7 /\\ P8\
 \
 From the previous developments, we already have the following:\
 \
-	P7:	c' = 
+	P10:	c' = 
 \b false
 \b0 \
-	P8:	d' = 
+	P11:	d' = 
 \b false
 \b0 \
-	P9:	x' = x <- y\
-	P10:	z' = w\
+	P12:	x' = x ++ [ y ]\
+	P13:	z' = w\
+	G6:	z = [ y ] ++ w\
 \
 And, in summary, the old part of the body of the loop becomes:\
 \
-	P11:	( (G1 /\\ P7 /\\ P1 /\\ P3) \\/ (G2 /\\ P8 /\\ P2 /\\ P4) ) /\\ P9 /\\ P10\
+	P14:	( (G1 /\\ P10 /\\ P1 /\\ P3) \\/ (G2 /\\ P11 /\\ P5 /\\ P6) ) /\\ P12 /\\ P13\
 \
-Since P6 does not mention any other variables than def, that we just introduced, we know that it does not violate any of the old invariants.  To make sure that they are preserved, we can add a skip on all the old variables to P6.\
+Since P9 does not mention any other variables than def, that we just introduced, we know that it does not violate any of the old invariants.  To make sure that they are preserved, we can add a skip on all the old variables to P9.\
 \
-	P12:	c' = c  /\\  d' = d  /\\  x' = x  /\\  z' = z\
+	P15:	c' = c  /\\  d' = d  /\\  x' = x  /\\  z' = z\
 \
 The body of our loop is now:\
 \
-	P13:	( P6 /\\ P12 ) \\/ P11\
+	P16:	( P9 /\\ P15 ) \\/ P14\
+\
+So far, I have used a technique based on invariants in a calculus where iteration is defined in terms of recursion.  So far, I hadn't defended that it was sound to proceed that way and I will now do so.\
+\
+\
 \
 In the interest of expressing a compact theorem of our findings, we will state what specification our loop satisfies in addition to termination.\
 \
@@ -149,75 +174,17 @@ In the interest of expressing a compact theorem of our findings, we will state w
 \
 	J6:	J1 /\\ J2 /\\ J3 /\\ J4 /\\ J5\
 \
-	P14:	J6   ==>   \'ac G3' /\\ J6'\
+	P17:	J6   ==>   \'ac GE' /\\ J6'\
 \
 And now for the statement of the refinement.\
 \
-(14)	P14   <==   P13 ; P14\
+(14)	P17   <==   P16 ; P17\
 \
-Let's now compute the guard of P6 to confirm our suspicion that upon termination, we have only one tree left if the input word is accepted.\
-\
-(15)		( 
-\b E 
-\b0 def'::  P6 )\
-	=		\{ Merge quantifications \}\
-		( 
-\b E
-\b0  s, u, v, def':  s <- u <- v = def:  def' = s <- bree.u.v )\
-	=		\{ Trading twice, one point rule \}\
-		( 
-\b E 
-\b0 s, u, v::  s <- u <- v = def )\
-	=		\{ Split quantification \}\
-		( 
-\b E
-\b0  s::  ( 
-\b E
-\b0  u, v::  s <- u <- v = def ) )\
-	=		\{ Sequence theory \}\
-		( 
-\b E
-\b0  s::  #s + 2 = #def )\
-	=		\{ Length of sequence \}\
-		#def \uc0\u8805  2\
-\
-So the loops continues provided #def \uc0\u8805  2   \\/   z \u8800  [] so it terminates when  #def \u8804  1 /\\ z = [].  Therefore, we have at most one tree left.  Good!  We need to have one, at least if the input is accepted though.\
-\
-(16)		def \uc0\u8800  []\
-	<==		\{ Leibniz \}\
-		ser.def \uc0\u8800  []\
-	<==		\{ Sequence theory \}\
-		ser.def = op -> x\
-	<==		\{ J1 \}\
-		c\
-\
-With the termination condition, we can now conclude\
-\
-(17)		( 
-\b E
-\b0  t::  c   ==>   def = [ t ] )\
-\
-(18)		op -> S\
-	=		\{ J1, J5 with c and z = [] \}\
-		ser.def\
-	=		\{ (17) \}\
-		ser.( [] <- t )\
-	=		\{ (10) \}\
-		ser.[]  ++ [ op ] ++ lin.t\
-	=		\{ (9) \}\
-		op -> lin.t\
-\
-(19)		c\
-	==>		\{ J1 \}	\
-		ser.def = op -> S\
-	=		\{ Sequence theory \}\
-		S = lin.t\
-\
-We mentioned the new variant earlier but did not prove that is decreased.  We will first define the well founded order and then carry the proof for each branch.\
+When it comes to termination, we can see that the two main branches have their own variants: z and def.  However, while the second branch does not modify z, the first one makes def grow.  We can't just add the size of the two sequences to obtain a variant global.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.  In order to prove that it actually decreases, we will first define the well founded order and then carry the proof for each branch.\
 \
 (20)	(z, def) < (z', def')    ==    z < z'  \\/  ( z = z' /\\ def < def' )\
 \
-We here use the principle that a lexicographical order on tuples whose elements admit a well-founded order is itself well-founded.\
+Here, we use the principle that a lexicographical order on tuples whose elements admit a well-founded order is itself well-founded.\
 \
 (21)		(z', def') < (z, def)\
 	=		\{ (20) \}\
@@ -226,8 +193,8 @@ We here use the principle that a lexicographical order on tuples whose elements 
 		z' = z  /\\  def' < def\
 	=		\{ z' = z \}\
 		def' < def\
-	=		\{ P5 and G4 \}\
-		s <- btree.u.v   <   s <- u <- v\
+	=		\{ P7 and G3 \}\
+		s   <   s ++ [ u ]\
 	=		\{ Sequence theory \}\
 		
 \b true
@@ -236,10 +203,10 @@ We here use the principle that a lexicographical order on tuples whose elements 
 (22)		(z', def') < (z, def)\
 	<==		\{ (20) and strengthening \}\
 		z' < z\
-	=		\{ P10 \}\
+	=		\{ P13 \}\
 		w < z\
-	=		\{ G5 \}\
-		w   <   y -> w\
+	=		\{ G6 \}\
+		w   <   [ y ] ++ w\
 	=		\{ Sequence theory \}\
 		
 \b true
@@ -269,17 +236,22 @@ Now, we know that our nondeterministic loop will terminate and produce a syntax 
 			
 \b if
 \b0  y = word -->\
-				c, d, def := d, 
+				c := d  ||\
+				d := 
 \b false
-\b0 , def <- leaf\
+\b0   ||\
+				t := leaf\
 			[] y = op ->\
-				c, d := 
-\b false
-\b0 , c\
+				c := 
+\b false 
+\b0  ||\
+				d := c  ||\
+				def := def ++ [ t ]\
 			
-\b fi
-\b0 \
-			||  x, z := x <- y, w\
+\b fi  
+\b0 ||\
+			x := x ++ [ y ]  ||\
+			z := w\
 		[] 
 \b any
 \b0  s, u, v 
