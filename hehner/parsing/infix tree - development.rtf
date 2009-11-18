@@ -110,19 +110,25 @@ Adding a skip operation over c and x takes care of the rest of the invariant J1.
 \
 Accumulating the guards of the loop will allow us to get to an exit condition.  The accumulated guard is:\
 \
-		( d == false /\\ ( 
+	G5:	( d == false /\\ ( 
 \b E
-\b0  s, u::  def = s ++ [ u ] ) ) \\/ z \uc0\u8800  []\
+\b0  s, u::  def = s ++ [ u ] ) ) \\/ ( 
+\b E 
+\b0 y, w::  [ y ] ++ w = z )\
 \
 Which gives us the following exit condition:\
 \
-	G5:	( d \uc0\u8800 \u8800  false \\/ \'ac ( 
+	G6:	( d \uc0\u8800 \u8800  false \\/ \'ac ( 
 \b E
-\b0  s, u::  def = s ++ [ u ] ) ) /\\ z = []\
+\b0  s, u::  def = s ++ [ u ] ) ) /\\  ( 
+\b E 
+\b0 y, w::  [ y ] ++ w = z )\
 \
 		( d \uc0\u8800 \u8800  false \\/ "\'ac ( 
 \b E
-\b0  s, u::  def = s ++ [ u ] )" ) /\\ z = []\
+\b0  s, u::  def = s ++ [ u ] )" ) /\\  "\'ac ( 
+\b E 
+\b0 y, w::  [ y ] ++ w = z )"\
  	=		\{ Sequence theory \}\
 		( d \uc0\u8800 \u8800  false \\/ def = [] ) /\\ z = []\
 	=		\{ JA: \'ac c \\/ \'ac d \}\
@@ -148,7 +154,7 @@ From the previous developments, we already have the following:\
 \b0 \
 	P12:	x' = x ++ [ y ]\
 	P13:	z' = w\
-	G6:	z = [ y ] ++ w\
+	GE:	z = [ y ] ++ w\
 \
 And, in summary, the old part of the body of the loop becomes:\
 \
@@ -162,11 +168,84 @@ The body of our loop is now:\
 \
 	P16:	( P9 /\\ P15 ) \\/ P14\
 \
-So far, I have used a technique based on invariants in a calculus where iteration is defined in terms of recursion.  So far, I hadn't defended that it was sound to proceed that way and I will now do so.\
+
+\b Intermezzo
+\b0 \
+So far, we have used a technique based on invariants in a calculus where iteration is defined in terms of recursion.  This means we proceeded in an order which is not exactly top down.  Instead of writing the specification of the algorithm and refining it, eventually using recursion for the loop, we identified a task, close to our goal, that would be nicely accomplished by a loop and proceeded to build an invariant for it, only worrying about its place in respect to the specification once the deed was done.  However, the risk was small because we kept the specification in mind while building the loop to make sure that a constant effort, i.e. one which does not involve a loop, would be sufficient to bridge the gap. \
 \
+So far, we hadn't defended that it was sound to proceed that way and we will now do so.  We will defend the whole scheme rather than this particular instance and will therefore work with a loop preserving invariant J with body S1 and guard G.  In Hehner's book, the corresponding specification is noted:\
 \
+	S2:	J   ==>   \'ac G'  /\\  J'\
 \
-In the interest of expressing a compact theorem of our findings, we will state what specification our loop satisfies in addition to termination.\
+As mentioned, this is usually refined using recursion guarded by G and we will prove that our proof obligations are sufficient to get such a refinement.  The usual proof obligation that guided our steps so far looks like this:\
+\
+		J /\\ G /\\ S1   ==>   J'\
+\
+We will reformulate it to suit our manipulative need.  We use the shunting rule for that.\
+\
+	(14)	J   ==>   ( G /\\ S1   ==>   J' )\
+\
+Finally, the recursive form of the loop will be:\
+\
+	S3:	J   ==>   ( G /\\ ( S1 ; S2 ) ) \\/ ( \'ac G /\\ ok )\
+\
+We now want to prove that S3 refines S2:\
+\
+	(15)	S2   <==   S3\
+\
+We will assume J and transform the consequent of S3 into that of S2.  We start with the recursive branch of the conditional.\
+\
+		G /\\ ( S1 ; S2 )\
+	  =		 \{ Definition of S2 \} \
+		G /\\ ( S1 ; J  ==>  \'ac G' /\\ J' )\
+	  =		\{ (16) see below \}\
+		( G /\\ S1 ) ; ( J   ==>   \'ac G' /\\ J' )\
+	  =		\{ (14) assuming J \}\
+		( G /\\ S1 /\\ J' ) ; ( J   ==>   \'ac G' /\\ J' )\
+	==>		\{ (17) and modus ponens \}\
+		( G /\\ S1 ) ; ( \'ac G' /\\ J' )\
+	==>		\{ (18) \}\
+		\'ac G' /\\ J'\
+\
+Let's continue with the second branch:\
+\
+		\'ac G /\\ ok\
+	  =		\{ assume J \}\
+		\'ac G /\\ J /\\ ok\
+	  =		\{ properties of ok \}\
+		\'ac G' /\\ J' /\\ ok\
+	==>		\{ Weakening \}\
+		\'ac G' /\\ J'\
+\
+It is now easy to conclude the refinement.  In the proof of the first branch of the alternative, we used the following three properties.  We will only prove (18) since the other proofs are very similar and simpler.\
+\
+	(16)	A /\\ ( B ; C )   ==   ( A /\\ B ) ; C \
+	(17)	( A /\\ B' ) ; C   ==   A ; ( B /\\ C )\
+	(18)	B'  <==  A ; B' \
+\
+		A ; B'\
+	=		\{ Definition of ; \}\
+		( 
+\b E
+\b0  v''::  A [v' := v''] /\\ B' [v := v''] )\
+	=		\{ There remains no unprimed copies of v in B'. \}\
+		( 
+\b E 
+\b0 v''::  A [v' := v''] /\\ B' )\
+	=		\{ /\\ distributes over 
+\b E
+\b0  \}\
+		( 
+\b E
+\b0  v''::  A [v' := v''] ) /\\ B'\
+	==>		\{ Weakening \}\
+		B'\
+\
+
+\b end of intermezzo
+\b0 \
+\
+In the interest of expressing a compact theorem of our findings so far, we will state what specification our loop satisfies in addition to termination.\
 \
 	J3:	c == L1.x\
 	J4: 	d == L2.x\
@@ -174,11 +253,17 @@ In the interest of expressing a compact theorem of our findings, we will state w
 \
 	J6:	J1 /\\ J2 /\\ J3 /\\ J4 /\\ J5\
 \
-	P17:	J6   ==>   \'ac GE' /\\ J6'\
+Using the theorem proved in the intermezzo, we assert that the following specification:\
 \
-And now for the statement of the refinement.\
+	P17:	J6   ==>   \'ac G5' /\\ J6'\
 \
-(14)	P17   <==   P16 ; P17\
+is refined by the following recursive formulation of our loop:\
+\
+	P18:	J6   ==>    ( G5 /\\ ( P16 ; P17 ) ) \\/ ( \'ac G5 /\\ ok )\
+\
+And now for the statement of the refinement which is a special case of (15).\
+\
+	(19)	P17   <==   P18\
 \
 When it comes to termination, we can see that the two main branches have their own variants: z and def.  However, while the second branch does not modify z, the first one makes def grow.  We can't just add the size of the two sequences to obtain a variant global.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.  In order to prove that it actually decreases, we will first define the well founded order and then carry the proof for each branch.\
 \
@@ -205,7 +290,7 @@ Here, we use the principle that a lexicographical order on tuples whose elements
 		z' < z\
 	=		\{ P13 \}\
 		w < z\
-	=		\{ G6 \}\
+	=		\{ GE \}\
 		w   <   [ y ] ++ w\
 	=		\{ Sequence theory \}\
 		
