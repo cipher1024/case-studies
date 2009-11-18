@@ -183,7 +183,7 @@ As mentioned, this is usually refined using recursion guarded by G and we will p
 \
 We will reformulate it to suit our manipulative need.  We use the shunting rule for that.\
 \
-	(14)	J   ==>   ( G /\\ S1   ==>   J' )\
+(14)	J   ==>   ( G /\\ S1   ==>   J' )\
 \
 Finally, the recursive form of the loop will be:\
 \
@@ -191,7 +191,7 @@ Finally, the recursive form of the loop will be:\
 \
 We now want to prove that S3 refines S2:\
 \
-	(15)	S2   <==   S3\
+(15)	S2   <==   S3\
 \
 We will assume J and transform the consequent of S3 into that of S2.  We start with the recursive branch of the conditional.\
 \
@@ -219,9 +219,9 @@ Let's continue with the second branch:\
 \
 It is now easy to conclude the refinement.  In the proof of the first branch of the alternative, we used the following three properties.  We will only prove (18) since the other proofs are very similar and simpler.\
 \
-	(16)	A /\\ ( B ; C )   ==   ( A /\\ B ) ; C \
-	(17)	( A /\\ B' ) ; C   ==   A ; ( B /\\ C )\
-	(18)	B'  <==  A ; B' \
+(16)	A /\\ ( B ; C )   ==   ( A /\\ B ) ; C \
+(17)	( A /\\ B' ) ; C   ==   A ; ( B /\\ C )\
+(18)	B'  <==  A ; B' \
 \
 		A ; B'\
 	=		\{ Definition of ; \}\
@@ -263,7 +263,7 @@ is refined by the following recursive formulation of our loop:\
 \
 And now for the statement of the refinement which is a special case of (15).\
 \
-	(19)	P17   <==   P18\
+(19)	P17   <==   P18\
 \
 When it comes to termination, we can see that the two main branches have their own variants: z and def.  However, while the second branch does not modify z, the first one makes def grow.  We can't just add the size of the two sequences to obtain a variant global.  However, we can consider that (z, def) will be decreased as a tuple if we consider its lexicographical ordering.  We already know that the first branch decreases z, we don't need anything further in that respect.  We'll have to make sure that the second branch does not increase z  --as a matter of fact, it should not need to touch it--  and decreases def.  In order to prove that it actually decreases, we will first define the well founded order and then carry the proof for each branch.\
 \
