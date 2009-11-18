@@ -1,0 +1,31 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 This development builds on the derivation of the parser of expressions with infix operators.  The goal here is only to reduce the non-determinism so that we can consider each possibly resulting tree to be equivalent.  One way to do so would be to examine the pairs of guard which are not disjoint and to strengthen them so as to minimize their intersection.  Analyzing the said guards does not seem to propose many possible strengthening, though and we turn to another alternative.  Let's narrow the set of desirable trees and use the resulting constraint to strengthen the guards.  \
+\
+A good way to start is to look at precedence relations.  When we see an expression formed of more than one operator, we can group subexpressions by considering that some operator have a higher binding power than others.  The keyword here is higher.  This hints at an order relation.  We will introduce the relation \uc0\u8804  on lexemes representing operators.  e \u8804  f should be interpreted as "a subtree rooted by e can be placed immediately under a root containing f".  We will not make any other assumption on \u8804  for now.\
+\
+Another problem we have to address is that, so far, we haven't distinguished between the operators.  To solve that issue, we could accompany to sequence of tokens taken as input with a sequence of lexemes of equal length.   \
+\
+Finally, in order to judge wether or not a tree is valid, we will need to store the operators in it.  For now, there is no strong incentive to also store the lexemes corresponding to words.  If we do, we will be able to state in the postcondition that the linearization of the resulting tree is equal to the sequence of lexemes rather than stating only that the lexemes associated with operators match those in the input sequence of lexemes.  On the other hand, putting the lexemes of words in the tree would be to complexify our data structure by information we don't care about.  \
+\
+In this light, of this reflexion, we will revisit the idea of adding an auxiliary input sequence.  Instead, we will start considering 'op' tokens as a family of tokens which can be distinguished among themselves by the lexeme that was actually typed in. \
+\
+For the postulates that we've used so far involving op, we will replace them to quantify over the lexemes.  Since we don't throw away all we did so far, we will pick another name for our new family of tokens, let it be opt.  We can now postulate rules for defining equivalence between words of the old language and words of the new one.  Let's introduce a function for removing the operators details of a word of the refined language to obtain a word of the old language.  It will be called rem.\
+\
+(0)	rem.[ word ] = [ word ]\
+(1)	rem.[ opt.le ] = [ op ]\
+(2)	rem.( x ++ y ) = rem.x ++ rem.y\
+\
+Our refined input word will be called T and it is linked through rem to the old one, S.  We now need to find a place in the syntax tree for the lexical information related to the operators.  It is a reasonable choice to put it in the binary nodes.  We will use a different constructor for those nodes but the same one for leaves.  We will also use the sk function to extract the skeleton of the tree, in other word, the naked tree that we used to build.\
+\
+(3)	botree.t1.t2.p \uc0\u8800  leaf\
+(4)	sk.leaf = leaf\
+(5)	sk.( botree.t1.t2.p ) = btree.( sk.t1 ).( sk.t2 )\
+\
+We now need to transform every variable related to the old input or the old structure of the tree.  This will be x, z, def, and t.  We will add versions suffixed with 0 and relate them with the old variables using the information removal functions.  In the case of def and def0, we will need another information removal function, let's call un; since we will need the skeleton of every tree it contains, we will be given an army of undead.\
+\
+(6)	}
