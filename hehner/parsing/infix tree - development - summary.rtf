@@ -21,71 +21,77 @@
 (8)	lin.( btree.x.y ) = lin.x ++ [ op ] ++ lin.y\
 \
 (9)	ser.[] = []\
-(10)	ser.( def <- t ) = ser.def ++ [ op ] ++ lin.t\
+(10)	ser.( def ++ [ t ] ) = ser.def ++ lin.t ++ [ op ]\
 \
-J1:	c   ==>   ser.def = op -> x\
-J2:	d   ==>   ser.( def <- leaf ) = op -> x <- word\
+J1:	c  ==>  ser.def ++ lin.t = x\
+J2:	d  ==>  ser.def = x\
 \
 G1:	y = word\
 G2:	y = op\
 \
 P1:	c' = d\
-P2:	d' = c\
+P2:	x' = x ++ [ y ]\
+P3:	def' = def\
+P4:	t' = leaf\
+P5:	d' = c\
+P6:	def' = def ++ [ t ]\
 \
-P3:	def' = def <- leaf\
-P4:	def' = def\
+(11)	J1'   <==   J2 /\\ G1 /\\ P1 /\\ P2 /\\ P3 /\\ P4\
+(12)	J2'   <==   J1 /\\ G2 /\\ P2 /\\ P5 /\\ P6\
 \
-(11)	J2 /\\ G1 /\\ P2 /\\ P1 /\\ P3   ==>   J1'\
-(12)	J1 /\\ G2 /\\ P2 /\\ P4   ==>   J2'\
+P7:	def' = s\
+P8:	t' = btree.u.t\
 \
-G3:	( 
+G3:	def = s ++ [ u ]\
+\
+(13)	ser.def ++ lin.t = ser.def' ++ lin.t'   <==   G3 /\\ P7 /\\ P8\
+\
+G4:	d == false\
+G5:	( d == false /\\ ( 
 \b E
-\b0  s, u, v::  s <- u <- v = def )\
-G4:	s <- u <- v = def\
+\b0  s, u::  G3 ) ) \\/ ( 
+\b E 
+\b0 y, w::  G6 )\
+G6:	[ y ] ++ w = z\
 \
-P5:	def' = s <- btree.u.v\
-P6:	( 
+G7:	( d \uc0\u8800 \u8800  false \\/ \'ac ( 
 \b E
-\b0  s, u, v:  G4:  P5 )\
+\b0  s, u::  G3 ) ) /\\  ( 
+\b E 
+\b0 y, w::  G6 )\
 \
-(13)	G3 /\\ P6   ==>   ser.def = ser.def'\
+(14)	( c  ==>  lin.t = S )   <==   G7 /\\ J1 /\\ J3 /\\ J4\
 \
-G5:	y -> w = z\
+J4:	x ++ z = S\
 \
-P7:	c' = 
-\b false
-\b0 \
-P8:	d' = 
-\b false
-\b0 \
-P9:	x' = x <- y\
-P10:	z' = w\
+P9:	P7 /\\ P8\
+P10:	c' = false\
+P11:	d' = false\
+P13:	z' = w\
+P14:	( (G1 /\\ P10 /\\ P1 /\\ P3) \\/ (G2 /\\ P11 /\\ P5 /\\ P6) ) /\\ P2 /\\ P13\
+P15:	c' = c  /\\  d' = d  /\\  x' = x  /\\  z' = z\
+P16:	( P9 /\\ P15 ) \\/ P14\
 \
-P11:	G5  /\\  ( (G1 /\\ P7 /\\ P1) \\/ (G2 /\\ P8 /\\ P2) ) /\\ P9 /\\ P10\
+S2:	J   ==>   \'ac G'  /\\  J'\
 \
-P13:	( P6 /\\ x' = x /\\ z' = z ) \\/ P11\
+(15)	J   ==>   ( G /\\ S1   ==>   J' )\
 \
-J3:	c == L1.x\
-J4: 	d == L2.x\
-J5:	x ++ z = S\
-J6:	J1 /\\ J2 /\\ J3 /\\ J4 /\\ J5\
+S3:	J   ==>   ( G /\\ ( S1 ; S2 ) ) \\/ ( \'ac G /\\ ok )\
 \
-P14:	J6   ==>   [ \'ac G3' ] /\\ J6'\
+(16)	S2   <==   S3\
+(17)	A /\\ ( B ; C )   ==   ( A /\\ B ) ; C \
+(18)	( A /\\ B' ) ; C   ==   A ; ( B /\\ C )\
+(19)	B'  <==  A ; B' \
 \
-(14)	P14   <==   P13 ; P14\
+J5:	c == L1.x\
+J6: 	d == L2.x\
 \
-(15)	( 
-\b E
-\b0  def'::  P6 )   ==   #def \uc0\u8805  2\
-(16)	def \uc0\u8800  []   <==   c\
-(17)	( 
-\b E
-\b0  t::  c   ==>   def = [ t ] )\
+J7:	J1 /\\ J2 /\\ J5 /\\ J6 /\\ J4\
 \
-(18)	( op -> S   ==   op -> lin.t )     <==     J1 /\\ J5 /\\ c /\\ z = []\
-(19)	J1   ==>   ( c   ==>   S = lin.t )\
-(20)	(z, def) < (z', def')    ==    z < z'  \\/  ( z = z' /\\ def < def' )\
-(21)	(z', def') < (z, def)    <==    P5  /\\  G4  /\\  z' = z\
-(22)	(z', def') < (z, def)    <==    G5 /\\ P10\
+P17:	J7   ==>   \'ac G5' /\\ J7'\
+P18:	J7   ==>    ( G5 /\\ ( P16 ; P17 ) ) \\/ ( \'ac G5 /\\ ok )\
 \
-}
+(20)	P17   <==   P18\
+(21)	(z, def) < (z', def')    ==    z < z'  \\/  ( z = z' /\\ def < def' )\
+(22)	(z', def') < (z, def)   <==   P7 /\\ G3 /\\ z' = z\
+(23)	(z', def') < (z, def)   <==   P13 /\\ G8}
