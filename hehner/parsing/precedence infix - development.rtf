@@ -100,4 +100,44 @@ Since K1 is an equality, we could have written our proof by transforming one sid
 	=		\{ P1 \}\
 		x'\
 \
-We get a slightly longer proof but we use the whole formula at each step which is more convenient for writing because we don't have to copy anything and for reading before we don't have to search for the effect of the steps.}
+We get a slightly longer proof but we use the whole formula at each step which is more convenient for writing because we don't have to copy most of the formula between each steps.  However, it is also more convenient for the reader because he doesn't have to search for the effect of the step.  \
+\
+This concludes the data refinement of x.  Let's now turn our attention to t.  The obvious glueing invariant would be:\
+\
+	K2:	t = sk.t0\
+\
+In this case, we have two statements that should be data refined to preserve K2.  We can start with the one shifting (in parsing theorem parlance) a subtree.\
+\
+	P2:	t' = leaf\
+\
+We will transform left hand side of K2 into the right hand side.  Even if sk.t0 has more structure, we don't have an assignment to it, yet, and we would like to find one.\
+\
+		t'\
+	=		\{ P2 \}\
+		leaf\
+	=		\{ (5) \}\
+		sk.leaf\
+	=		\{ R2: t0' = leaf \}\
+		sk.t0'\
+\
+We therefore conclude\
+\
+(10)	K2'   <==   P2 /\\ R2\
+\
+This was an easy one but we can still see that it is interesting to not have to guess a refined statement ahead of time.  We will try it also with the second assignment to t.\
+\
+	P3:	t' = btree.u.t\
+\
+		t'\
+	=		\{ P3 \}\
+		btree.u.t\
+	=		\{ K2 \}\
+		btree.u.( sk.t0 )\
+	=		\{ G2: u = sk.u0;  heading for the application of (6) \}\
+		btree.( sk.u0 ).( sk.t0 )\
+	=		\{ (6) \}\
+		sk.( botree.u0.t0 )\
+	=		\{ R3: t0' = botree.u0.t0 \}\
+		sk.t0'\
+\
+(11)	K2'   <==   K2 /\\ G2 /\\ P3 /\\ R3}
