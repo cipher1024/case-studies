@@ -180,9 +180,8 @@ The body of our loop is now:\
 \
 	P16:	( P9 /\\ P15 ) \\/ P14\
 \
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
-\b \cf0 Intermezzo
+\b Intermezzo
 \b0 \
 So far, we have used a technique based on invariants in a calculus where iteration is defined in terms of recursion.  This means we proceeded in an order which is not exactly top down.  Instead of writing the specification of the algorithm and refining it, eventually using recursion for the loop, we identified a task, close to our goal, that would be nicely accomplished by a loop and proceeded to build an invariant for it, only worrying about its place in respect to the specification once the deed was done.  However, the risk was small because we kept the specification in mind while building the loop to make sure that a constant effort, i.e. one which does not involve a loop, would be sufficient to bridge the gap. \
 \
@@ -359,7 +358,7 @@ Now, we know that our nondeterministic loop will terminate and produce a syntax 
 		
 \b in
 \b0 \
-			del, t := s, btree.u.t\
+			def, t := s, btree.u.t\
 		
 \b fi
 \b0 \
