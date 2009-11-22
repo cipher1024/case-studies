@@ -10,9 +10,15 @@ A good way to start is to look at precedence relations.  When we see an expressi
 \
 Another problem we have to address is that, so far, we haven't distinguished between the operators.  To solve that issue, we could accompany to sequence of tokens taken as input with a sequence of lexemes of equal length.   \
 \
-Finally, in order to judge wether or not a tree is valid, we will need to store the operators in it.  For now, there is no strong incentive to also store the lexemes corresponding to words.  If we do, we will be able to state in the postcondition that the linearization of the resulting tree is equal to the sequence of lexemes rather than stating only that the lexemes associated with operators match those in the input sequence of lexemes.  On the other hand, putting the lexemes of words in the tree would be to complexify our data structure by information we don't care about.  \
+Finally, in order to judge wether or not a tree is valid, we will need to store the operators in it.  For now, there is no strong incentive to also store the lexemes corresponding to words.  If we do, we will be able to state in the postcondition that the linearization of the resulting tree is equal to the sequence of lexemes rather than stating only that the lexemes associated with operators match those in the input sequence of lexemes.  On the other hand, putting the lexemes of words in the tree would be to complicate our data structure with information we don't care about.  \
 \
-In this light, of this reflexion, we will revisit the idea of adding an auxiliary input sequence.  Instead, we will start considering 'op' tokens as a family of tokens which can be distinguished among themselves by the lexeme that was actually typed in. \
+In the light, of this reflexion, we will revisit the idea of adding an auxiliary input sequence.  Instead, we will start considering 'op' tokens as a family of tokens which can be distinguished among themselves by the lexeme that was actually typed in. \
+\
+
+\b Note
+\b0 :  For the purpose of this note, since we need more information than what currently populates our data structures, we will need to start with a data refinement.  This is a technique where we transform our variables by taking care of keeping the relevant properties.  It will require us to reformulate our statements, guards and invariants.  Once the data refinement is done, we will be able to carry on with our program design.  (
+\b end of note
+\b0 )\
 \
 For the postulates that we've used so far involving op, we will replace them to quantify over the lexemes.  Since we don't throw away all we did so far, we will pick another name for our new family of tokens, let it be opt.  We can now postulate rules for defining equivalence between words of the old language and words of the new one.  Let's introduce a function for removing the operators details of a word of the refined language to obtain a word of the old language.  It will be called rem.\
 \
