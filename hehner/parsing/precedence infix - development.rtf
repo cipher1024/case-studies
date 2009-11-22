@@ -249,7 +249,28 @@ The case y = op is trivially true because c gets assigned false.  However, we st
 \
 The final proof obligation for these invariant is the preservation of P4 by the branch of the loop that reduces trees.  If we recall correctly, though, we have a guard that blocks its execution if d == false.  It is therefore trivially true.\
 \
-G8:	d == false\
-P8:	d' = d\
+	G8:	d == false\
+	P8:	d' = d\
 \
-(21)	J4'   <==   G8 /\\ P8}
+(21)	J4'   <==   G8 /\\ P8\
+\
+We have introduced many statements in the process of the data refinement and will now put them together.  To preserve the invariant of the acceptor, we will also put in the following statements.\
+\
+	P9:	c' = false\
+	P10:	d' = false\
+	P11:	c' = c\
+\
+We group them in branches and prefix them with B.  The first two are related to the acceptor, we use respectively theorem (20) and theorem (19) to assemble them.  Each of them is prefixed with a guard, two statement statements of the acceptor and two or three refined statements.\
+\
+	B1:	G7 /\\ P7 /\\ P9 /\\ R1 /\\ R5 /\\ R10\
+	B2:	G6 /\\ P6 /\\ P10 /\\ R1 /\\ R2 /\\ R8 /\\ R9\
+\
+We use theorem (18) and (21) for the third branch which is related with the construction of the tree.\
+\
+	B3:	G4 /\\ G5 /\\ G8 /\\ P8 /\\ P11 /\\ R3 /\\ R4 /\\ R6 /\\ R7\
+\
+The body of the loop is therefore:\
+\
+	P12:	B1 \\/ B2 \\/ B3\
+\
+}
