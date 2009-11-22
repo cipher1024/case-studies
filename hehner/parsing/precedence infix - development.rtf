@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\vieww9000\viewh8400\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\fs24 \cf0 This development builds on the derivation of the parser of expressions with infix operators.  The goal here is only to reduce the non-determinism so that we can consider each possibly resulting tree to be equivalent.  One way to do so would be to examine the pairs of guard which are not disjoint and to strengthen them so as to minimize their intersection.  Analyzing the said guards does not seem to propose many possible strengthening, though and we turn to another alternative.  Let's narrow the set of desirable trees and use the resulting constraint to strengthen the guards.  \
@@ -140,4 +140,6 @@ This was an easy one but we can still see that it is interesting to not have to 
 	=		\{ R3: t0' = botree.u0.t0 \}\
 		sk.t0'\
 \
-(11)	K2'   <==   K2 /\\ G2 /\\ P3 /\\ R3}
+(11)	K2'   <==   K2 /\\ G2 /\\ P3 /\\ R3\
+\
+It becomes a little more complicated when we get to the data refinement of def.  The problem is that we still don't have enough information when it comes to the operators inserted between the linearization of the trees, in the serialization.  Yet, we are not constrained yet to have all information accurate but we can feel that, if we don't, we wont be able to reach Q2.  Not only should we refine def but, since it is the last variable of J1 left to be refined, we should keep in mind that the execution of the algorithm must terminate in a state satisfying Q2.}
