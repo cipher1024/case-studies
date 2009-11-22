@@ -136,10 +136,120 @@ This was an easy one but we can still see that it is interesting to not have to 
 	=		\{ G2: u = sk.u0;  heading for the application of (6) \}\
 		btree.( sk.u0 ).( sk.t0 )\
 	=		\{ (6) \}\
-		sk.( botree.u0.t0 )\
-	=		\{ R3: t0' = botree.u0.t0 \}\
+		sk.( botree.u0.t0.p )\
+	=		\{ R3: t0' = botree.u0.t0.p \}\
 		sk.t0'\
 \
 (11)	K2'   <==   K2 /\\ G2 /\\ P3 /\\ R3\
 \
-It becomes a little more complicated when we get to the data refinement of def.  The problem is that we still don't have enough information when it comes to the operators inserted between the linearization of the trees, in the serialization.  Yet, we are not constrained yet to have all information accurate but we can feel that, if we don't, we wont be able to reach Q2.  Not only should we refine def but, since it is the last variable of J1 left to be refined, we should keep in mind that the execution of the algorithm must terminate in a state satisfying Q2.}
+The same kind of projection can be applied for def.\
+\
+K3:	def = un.def0\
+\
+P4:	def' = s\
+\
+		def'\
+	=		\{ P4 \}\
+		s\
+	=		\{ G3: s = un.s0 \}\
+		un.s0\
+	=		\{ R4: def0' = s0 \}\
+		un.def0'\
+\
+(12)	K3'   <==   G3 /\\ P4 /\\ R4\
+\
+P5:	def' = def ++ [ t ]\
+\
+		def'\
+	=		\{ P5 \}\
+		def ++ [ t ]\
+	=		\{ K3 and K2 \}\
+		un.def0 ++ [ sk.t0 ]\
+	=		\{ (7) \}\
+		un.def0 ++ un.[ t0 ]\
+	=		\{ (8) \}\
+		un.( def0 ++ [ t0 ] )\
+	=		\{ R5: def0' = def0 ++ [ t0 ] \}\
+		un.def0'\
+\
+(13)	K3'   <==   K2 /\\ K3 /\\ P5 /\\ R5\
+\
+We will now design an invariant to allow us to enforce postcondition Q2.  The problem is that we still don't have enough information when it comes to the operators inserted between the linearization of the trees, in the serialization of def0.  However, a good hint is present in the derivation of theorem (11) and it is definitely worthwhile to have a look at it.  In the one but last step of the derivation, an unknown entity p is introduced as an operator in the node constructor.  It could be a variable like t but the fact that we will lack a series of such operators steers us in another direction.  Since, in the serialization of def0, we will need one such operator after the linearization of each tree, we could introduce a stack of operators, called 'stop', which will grow and shrink as def0 does.  We could therefore use that idea to find a reformulation for J2.\
+\
+	J2:	c   ==>   ser.def  ++  lin.t  =  x\
+\
+We need a new version of ser and lin.  It seems sensible to use lin for both linearization functions but the serialization will include a key difference: it will interleave the elements of two stacks.  Let's therefore call it il (like in Inter Leave).  \
+\
+The properties of the new function lin will be no surprise.\
+\
+(14)	lin.leaf = [ word ]\
+(15)	lin.( botree.t1.t2.p ) = lin.t1 ++ [ opt.p ] ++ lin.t2\
+\
+And the properties of il will be a little more exotic.\
+\
+(16)	il.[].[]  =  []\
+(17)  il.( d ++ [ t ] ).( s ++ [ p ] ) = il.d.s ++ lin.t ++ [ opt.p ]\
+\
+We can now formulate an invariant analogous to J2 to link def0, stop and x.\
+\
+	J3:	c   ==>   il.def0.stop  ++  lin.t0  =  x0\
+\
+We start by proving it is maintained by the branch of the loop which reduces the trees.\
+\
+		il.def0'.stop' ++ lin.t0'\
+	=		\{ R4 and R3 \}\
+		il.s0.stop' ++ lin.( botree.u0.t0.p )\
+	=		\{ (15) \}\
+		il.s0.stop' ++ lin.u0 ++ [ opt.p ] ++ lin.t0\
+	=		\{ (17) \}\
+		il.( s0 ++ [ u0 ] ).( stop' ++ [ p ] ) ++ lin.t0\
+	=		\{ G4: def0 = s0 ++ [ u0 ] and R6: stop' = st; \
+				heading for a guard of the same shape as G4 \}\
+		il.def0.( st ++ [ p ] ) ++ lin.t0\
+	=		\{ G5: st ++ [ p ] = stop \}\
+		il.def0.stop ++ lin.t0\
+	=		\{ J3 assuming c \}\
+		x0\
+	=		\{ R7: x0' = x0 \}\
+		x0'\
+\
+Which tells us:\
+\
+(18)	J3'   <==   J3 /\\ G4 /\\ G5 /\\ R3 /\\ R4 /\\ R6 /\\ R7\
+\
+Now with the other branches.  We will start with the case y = word.\
+\
+(19)		il.def0'.stop' ++ lin.t0'\
+	=		\{ R2 then (14) \}\
+		il.def0'.stop' ++ [ word ]\
+	=		\{ R8: def0' = def0 and R9: stop' = stop \}\
+		il.def0.stop ++ [ word ]\
+	=		\{ P6: c' = d and c' with J4: d   ==>   x0 = il.def0.stop \}\
+		x0 ++ [ word ]\
+	=		\{ G6: y0 = word \}\
+		x0 ++ [ y0 ]\
+	=		\{ R1 \}\
+		x0'\
+\
+The case y = op is trivially true because c gets assigned false.  However, we still have to prove the invariance of J4 which we used to support that of J3.  We can skip the case where y = word since d gets false.\
+\
+(20)		il.def0'.stop'\
+	=		\{ R5 \}\
+		il.( def0 ++ [ t0 ] ).stop'\
+	=		\{ R10: stop' = stop ++ [ p ]; heading for (17) \}\
+		il.( def0 ++ [ t0 ] ).( stop ++ [ p ] )\
+	=		\{ (17) \}\
+		il.def0.stop ++ lin.t0 ++ [ opt.p ]\
+	=		\{ J3 with P7: d' = c and d \}\
+		x0 ++ [ opt.p ]\
+	=		\{ G7: y0 = opt.p \}\
+		x0 ++ [ y0 ]\
+	=		\{ R1 \}\
+		x0'\
+\
+The final proof obligation for these invariant is the preservation of P4 by the branch of the loop that reduces trees.  If we recall correctly, though, we have a guard that blocks its execution if d == false.  It is therefore trivially true.\
+\
+G8:	d == false\
+P8:	d' = d\
+\
+(21)	J4'   <==   G8 /\\ P8}
