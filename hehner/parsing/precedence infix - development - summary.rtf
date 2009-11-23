@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\paperw11900\paperh16840\vieww9000\viewh8400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\fs24 \cf0 (0)	rem.[ word ] = [ word ]\
@@ -98,14 +98,14 @@ P12:	(
 \b0  s0, u0::  B3 )\
 \
 J5:	x0 ++ z0 = T\
-R10:	z0' = w0\
+R11:	z0' = w0\
 G9:	[ y0 ] ++ w0 = z0\
 \
-(22)	J5'   <==   J5 /\\ G9 /\\ R1 /\\ R10\
+(22)	J5'   <==   J5 /\\ G9 /\\ R1 /\\ R11\
 \
-R11:	z0' = z0\
-B4:	G9 /\\ ( B1 \\/ B2 ) /\\ R10\
-B5:	B3 /\\ R11\
+R12:	z0' = z0\
+B4:	G9 /\\ ( B1 \\/ B2 ) /\\ R11\
+B5:	B3 /\\ R12\
 P13:	( 
 \b E
 \b0  y0, w0::  B4 ) \\/ ( 
@@ -143,11 +143,32 @@ J8:	def0 \uc0\u8800  []  ==>  cm.p.u0 /\\ cm.p.t0\
 \
 (40)	cmp.[].[]  ==  true\
 (41)	cmp.[ t ].[ p ]   ==   cm.p.t\
-(41)	cmp.( d ++ f ).( p ++ q )    ==    cmp.d.p  /\\  cm.f.q\
+(42)	cmp.( d ++ f ).( p ++ q )    ==    cmp.d.p  /\\  cm.f.q\
 \
 J9:	def0 \uc0\u8800  []   ==>   ( 
 \b E
 \b0  st, p:  st ++ [ p ] = stop:  cm.p.t0 )\
-J10:	cmp.def0.stop  ==  true\
+J10:	cmp.stop.def0  ==  true\
 J11:	ord.stop  ==  true\
+\
+(43)	J8   <==   J9 /\\ J10 /\\ G4 /\\ G5\
+(44)	J9'   <==   J11 /\\ J12 /\\ G5 /\\ R3 /\\ R6 \
+(45)	( 
+\b E
+\b0  ops, q::  stop = ops ++ [ q, p ] )   <==  G5 /\\ R6 /\\ J12\
+(46)	J9'   <==   R2\
+(47)	J10'   <==   J10 /\\ G4 /\\ G5 /\\ R4 /\\ R6\
+\
+G10:	cm.p.t0\
+\
+(48)	J10'   <==   J10 /\\ G10 /\\ R5 /\\ R10\
+(49)	J11'   <==   J11 /\\ G5 /\\ R6\
+\
+G11:	st ++ [ q ] = stop\
+G12:	p < q\
+G13:	stop \uc0\u8800  []   ==>   ( 
+\b E 
+\b0 st, q::  G11 /\\ G12 )\
+\
+(50)	J11'   <==   J11 /\\ G13 /\\ R10\
 }

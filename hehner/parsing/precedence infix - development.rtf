@@ -1,7 +1,7 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\paperw11900\paperh16840\vieww9000\viewh8400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \f0\fs24 \cf0 This development builds on the derivation of the parser of expressions with infix operators.  The goal here is only to reduce the non-determinism so that we can consider each possibly resulting tree to be equivalent.  One way to do so would be to examine the pairs of guard which are not disjoint and to strengthen them so as to minimize their intersection.  Analyzing the said guards does not seem to propose many possible strengthening, though and we turn to another alternative.  Let's narrow the set of desirable trees and use the resulting constraint to strengthen the guards.  \
@@ -288,21 +288,21 @@ So far, z has not been mentioned or refined and it would be I good idea to do so
 (22)		x0' ++ z0'\
 	=		\{ R1 \}\
 		x0 ++ [ y0 ] ++ z0'\
-	=		\{ Remove the primed variable z0':  R10: z0' = w0 \}\
+	=		\{ Remove the primed variable z0':  R11: z0' = w0 \}\
 		x0 ++ [ y0 ] ++ w0\
 	=		\{ Fall back on J5 with G9: [ y0 ] ++ w0 = z0 \}\
 		x0 ++ z0\
 	=		\{ J5 \}\
 		T\
 \
-Since R1 appears in both B1 and B2, adding G9 and R10 to them make them preserve J5.  As for B3, it contains R7 which is a skip on x0.  We can complement it with a skip on z0.\
+Since R1 appears in both B1 and B2, adding G9 and R11 to them make them preserve J5.  As for B3, it contains R7 which is a skip on x0.  We can complement it with a skip on z0.\
 \
-	R11:	z0' = z0\
+	R12:	z0' = z0\
 \
 And we can update the branches accordingly.\
 \
-	B4:	G9 /\\ ( B1 \\/ B2 ) /\\ R10\
-	B5:	B3 /\\ R11\
+	B4:	G9 /\\ ( B1 \\/ B2 ) /\\ R11\
+	B5:	B3 /\\ R12\
 	P13:	( 
 \b E
 \b0  y0, w0::  B4 ) \\/ ( 
@@ -482,4 +482,85 @@ We introduced the invariant J12 to prove (46) and its proof is fairly straightfo
 		cm.q.leaf\
 	=		\{ (26) \}\
 		true\
-}
+\
+We now turn to J10.\
+\
+		cmp.stop'.def0'\
+	  =		\{ R4 and R6 \}\
+		cmp.st.s0\
+	<==		\{ Strengthening; aiming for (42) \}\
+		cmp.st.s0  /\\  cmp.[ p ].[ u0 ]\
+	  =		\{ (42) \}\
+		cmp.( st ++ [ p ] ).( s0 ++ [ u0 ] )\
+	  =		\{ G4 and G5 \}\
+		J10\
+\
+(47)	J10'   <==   J10 /\\ G4 /\\ G5 /\\ R4 /\\ R6\
+\
+		cmp.stop'.def0'\
+	=		\{ R5 and R10 \}\
+		cmp.( stop ++ [ p ] ).( def0 ++ [ t0 ] )\
+	=		\{ (42) and (41) \}\
+		cmp.stop.def0  /\\  cm.p.t0\
+	=		\{ G10: cm.p.t0 \}\
+		J10\
+\
+(48)	J10'   <==   J10 /\\ G10 /\\ R5 /\\ R10\
+\
+The other branch keeps stop and def0 intact so the invariance of J10 is trivial.  In order to prove (48), we had to introduce G10 and this is an interesting strengthening of the guard of the branch reading an operator.  If the operator is not compatible with t0, we won't be able to make t0 a subtree of a node containing p.  We might hope that reducing some trees might change the situation but it would be simpler to declare the input to be ambiguous right away and reject it.  If < was transitive, we could do that.  Let's keep the idea but continue our proving with the preservation of J11.\
+\
+		ord.stop'\
+	  =		\{ R6 \}\
+		ord.st\
+	  =		\{ case analysis on st = [] and (37) \}\
+		st \uc0\u8800  []  /\\  ord.st\
+	  =		\{ Sequence theory; heading for (39) \}\
+		( 
+\b E
+\b0  ops, q::  st = ops ++ [ q ]   /\\   ord.( ops ++ [ q ] ) )\
+	<==		\{ Strengthening \}\
+		( 
+\b E
+\b0  ops, q::  st = ops ++ [ q ]   /\\   ord.( ops ++ [ q ] )   /\\   p < q )\
+	  =		\{ (39) \}\
+		( 
+\b E
+\b0  ops, q::  st = ops ++ [ q ]   /\\   ord.( ops ++ [ q, p ] ) )\
+	  =		\{ Adding a suffix on both sides of = \}\
+		( 
+\b E
+\b0  ops, q::  st ++ [ p ] = ops ++ [ q, p ]   /\\   ord.( ops ++ [ q, p ] ) )\
+	  =		\{ G5 \}\
+		J11\
+\
+(49)	J11'   <==   J11 /\\ G5 /\\ R6\
+\
+		ord.stop'\
+	=		\{ R10 \}\
+		ord.( stop ++ [ p ] )\
+	=		\{ Case analysis around stop = []; (38) \}\
+		stop \uc0\u8800  []  /\\  ord.( stop ++ [ p ] )\
+\
+From here, we rewrite stop \uc0\u8800  [] to decompose it into a head and a tail and we put the details of the decomposition in the assumptions.\
+\
+		ord.( stop ++ [ p ] )\
+	=		\{ G11: st ++ [ q ] = stop \}\
+		ord.( st ++ [ q ] ++ [ p ] )\
+	=		\{ (39) \}\
+		ord.( st ++ [ q ] )  /\\  p < q\
+	=		\{ G11 \}\
+		J11  /\\  p < q\
+	=		\{ G12: p < q \}\
+		J11\
+\
+In the previous proof, the hypotheses are not as straightforward as what we have seen so far and we will try to untangle them.\
+\
+G13:	stop \uc0\u8800  []   ==>   ( 
+\b E 
+\b0 st, q::  G11 /\\ G12 )\
+\
+This allows us to conclude:\
+\
+(50)	J11'   <==   J11 /\\ G13 /\\ R10\
+\
+This tells us that every operator that we shift in stop must fit in.  This is only part of the story.  If we could shift an operator and that we decide to reduce the tree instead, the opportunity can be lost and the operator could be impossible to shift in stop.  This is because the top of stop, with which we checked that the new operator fits, becomes the root of t0.  Instead of p < q, we would then need q < p in order to shift the operator.  We could therefore strengthen the guard of the third branch, the one in charge of reducing, in order to fulfill this.  Before we proceed, though, we will spend a little more time on the justification of such a transformation.  Ultimately, we want to make sure that the non-determinacy is reduced enough so that we don't "miss" a syntax tree that would have been suitable.  In operational term, since an unspecified choice is entrusted to a demon, we can be sure that he will pick any dead alley he can.}
