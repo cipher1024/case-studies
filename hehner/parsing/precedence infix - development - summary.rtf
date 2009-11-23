@@ -128,4 +128,26 @@ P17:	z0' = T\
 (29)	v.( botree.t1.t2.p )  ==  cm.p.t1 /\\ cm.p.t2\
 (30)	vs.[]  ==  true\
 (31)	vs.[ t ]  ==  v.t\
-(32)	vs.( s1 ++ s2 )  ==  vs.s1  /\\  vs.s2}
+(32)	vs.( s1 ++ s2 )  ==  vs.s1  /\\  vs.s2\
+(33)	J6'   <==   R2\
+(34)	J7'   <==   G4 /\\ R4\
+(35)	J6'   <==   J6 /\\ J7 /\\ R5\
+\
+J8:	def0 \uc0\u8800  []  ==>  cm.p.u0 /\\ cm.p.t0\
+\
+(36)	J6'  <==   J6 /\\ J7 /\\ J8 /\\ G4 /\\ R3\
+\
+(37)	ord.[]  ==  true\
+(38)	ord.[ p ]  ==  true\
+(39)	ord.( st ++ [ p, q ] )  ==  ord.( st ++ [ p ] )  /\\  q < p\
+\
+(40)	cmp.[].[]  ==  true\
+(41)	cmp.[ t ].[ p ]   ==   cm.p.t\
+(41)	cmp.( d ++ f ).( p ++ q )    ==    cmp.d.p  /\\  cm.f.q\
+\
+J9:	def0 \uc0\u8800  []   ==>   ( 
+\b E
+\b0  st, p:  st ++ [ p ] = stop:  cm.p.t0 )\
+J10:	cmp.def0.stop  ==  true\
+J11:	ord.stop  ==  true\
+}

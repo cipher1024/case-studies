@@ -355,7 +355,72 @@ We can now concentrate on making the algorithm more deterministic.  To do so, we
 (26)	cm.p.leaf  ==  true\
 (27)	cm.p.( botree.t1.t2.q )  ==  q < p\
 (28)	v.leaf  ==  true\
-(29)	v.( botree.t1.t2.p )  ==  cm.p.t1 /\\ cm.p.t2\
+(29)	v.( botree.t1.t2.p )  ==  cm.p.t1 /\\ cm.p.t2 /\\ v.t1 /\\ v.t2\
 (30)	vs.[]  ==  true\
 (31)	vs.[ t ]  ==  v.t\
-(32)	vs.( s1 ++ s2 )  ==  vs.s1  /\\  vs.s2}
+(32)	vs.( s1 ++ s2 )  ==  vs.s1  /\\  vs.s2\
+\
+The obvious place to make use of these definitions is on def0 and t0.\
+\
+J6:	v.t0\
+J7:	vs.def0\
+\
+Let's have a look at the assignments to t0 and see if the invariant is preserved.  \
+\
+(33)		v.t0'\
+	=		\{ R2 \}\
+		v.leaf\
+	=		\{ (28) \}\
+		true\
+\
+R3 introduces more complication with respect to J6 and we will leave it for the last.\
+\
+(34)		J7'\
+	  =		\{ R4 \}\
+		vs.s0\
+	<==		\{ Strengthening; heading for G4 \}\
+		vs.s0  /\\  vs.[ u0 ]\
+	  =		\{ (32) \}\
+		vs.( s0 ++ [ u0 ] )\
+	  =		\{ G4 \}\
+		J7\
+\
+(35)		J7'\
+	=		\{ R5 \}\
+		vs.( def0 ++ [ t0 ] )\
+	=		\{ (32) then (31) \}\
+		J7  /\\  J6\
+\
+Now for the preservation of J6 by R3.\
+\
+(36)		J6'\
+	=		\{ R3 \}\
+		v.( botree.u0.t0.p )\
+	=		\{ (29) \}\
+		cm.p.u0  /\\  cm.p.t0  /\\  v.u0  /\\  v.t0\
+	=		\{ J7 and G4 with (32); J6 \}\
+		cm.p.u0  /\\  cm.p.t0\
+	=		\{ J8: def0 \uc0\u8800  []  ==>  cm.p.u0 /\\ cm.p.t0 \}\
+		true\
+\
+The tricky part is the introduction of J8.  It pushes the requirement back on def0 and stop.  Let's see if they are up to it.  A priori, we might want to make sure that every operator in stop is compatible with each neighboring trees in def0.  However, the case of J8 is a special one and the fact that it involves t0 instead of an element of def0 is a hint that we should not generalize it.  Instead, we should think that the top of stop is compatible with t0 and any subsequent element of stop will be too.  At this point, pointing out that either t0 = leaf or it is a node around an operator coming from stop should lead us to the conclusion that the relation which is missing is a relation between consecutive operators.  We will introduce ord to stand for this property.\
+\
+(37)	ord.[]  ==  true\
+(38)	ord.[ p ]  ==  true\
+(39)	ord.( st ++ [ p, q ] )  ==  ord.( st ++ [ p ] )  /\\  q < p\
+\
+We also want each operator to be compatible with the tree at the same position in def0.  We will call this relationship cmp.\
+\
+(40)	cmp.[].[]  ==  true\
+(41)	cmp.[ t ].[ p ]   ==   cm.p.t\
+(41)	cmp.( d ++ f ).( p ++ q )    ==    cmp.d.p  /\\  cm.f.q\
+\
+Now we can reformulate J8 and propose new invariants also.\
+\
+J9:	def0 \uc0\u8800  []   ==>   ( 
+\b E
+\b0  st, p:  st ++ [ p ] = stop:  cm.p.t0 )\
+J10:	cmp.def0.stop  ==  true\
+J11:	ord.stop  ==  true\
+\
+We can now prove that P8 is subsumed by J9 and J10 and forget about it.}
