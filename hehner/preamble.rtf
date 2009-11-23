@@ -103,6 +103,36 @@ Contrarily to many authors, an analogy is not made between the conjunction and d
 
 \b end of summary\
 \
+Summary of sequence theory
+\b0 \
+\
+Without much introduction, sequence theory will be used extensively in the following developments.  Here is a short summary to help make sense of most of what is used.\
+\
+
+\i operators
+\i0 \
+\
+->	Prepend, add an element at the beginning of a sequence.  The element is placed on the left of the operator.\
+<-	Append, add an element at the end of a sequence.  The element is placed on the right.  It is mutually associative with ->\
+++	Concatenation.  It is associative\
+\
+It is useful to see how to have the previous three operators interact.  In particular, it is useful to note:\
+\
+	A  ++  x -> B   =   A <- x  ++  B\
+\
+(with higher precedence given to ->).  This, however, is redundant with the associativity of ++ if we have a notation for sequence literal and it was considered more convenient to keep only one operator so the transition was made after the first few sections.  \
+\
+The notation for sequence literal consists in listing the element in the first to last order between square brackets ( [ x, y, z ] ).  As a  special case, [] is taken for the empty sequence.  Finally, it is made extensive use of:\
+\
+	s \uc0\u8800  []   ==   ( 
+\b E
+\b0  s1, s2:  #s1 > 0  \\/  #s2 > 0:   s1 ++ s2 = s )\
+\
+(with #s the length of s) or any of its corollaries.\
+\
+
+\b end of summary of sequence theory\
+\
 Summary of Hehner's calculus
 \b0 \
 \
