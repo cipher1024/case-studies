@@ -412,8 +412,8 @@ The tricky part is the introduction of J8.  It pushes the requirement back on de
 We also want each operator to be compatible with the tree at the same position in def0.  We will call this relationship cmp.\
 \
 (40)	cmp.[].[]  ==  true\
-(41)	cmp.[ t ].[ p ]   ==   cm.p.t\
-(41)	cmp.( d ++ f ).( p ++ q )    ==    cmp.d.p  /\\  cm.f.q\
+(41)	cmp.[ p ].[ t ]   ==   cm.p.t\
+(42)	cmp.( p ++ q ).( d ++ f )    ==    cmp.p.d  /\\  cm.q.f\
 \
 Now we can reformulate J8 and propose new invariants also.\
 \
@@ -423,4 +423,63 @@ J9:	def0 \uc0\u8800  []   ==>   (
 J10:	cmp.def0.stop  ==  true\
 J11:	ord.stop  ==  true\
 \
-We can now prove that P8 is subsumed by J9 and J10 and forget about it.}
+We can now prove that J8 is subsumed by J9 and J10 and then forget about it.\
+\
+		cm.p.u0  /\\  cm.p.t0\
+	  =		\{ J9 using def0 \uc0\u8800  [] \}\
+		cm.p.u0\
+	<==		\{ Strengthening; Heading for (41) \}\
+		cmp.st.s0  /\\  cm.p.u0\
+	  =		\{ (41) then (42) \}\
+		cmp.( st ++ [ p ] ).( s0 ++ [ u0 ] )\
+	  =		\{ G4 and G5 \}\
+		J10\
+\
+(43)	J8   <==   J9 /\\ J10 /\\ G4 /\\ G5\
+\
+To prove that J9 is maintained we have to look at assignments to stop and t0.  So far, we have kept the relation between the length of def0 and stop informal but, now, we will explicit it to allow us to use it and not consider assignments to def0 also.\
+\
+(44)		cm.p.t0'\
+	  =		\{ rename p as q; R3 \}\
+		cm.q.( botree.u0.t0.p )\
+	  =		\{ (27) \}\
+		p < q\
+	<==		\{ Strengthening; aiming at (39) \}\
+		ord.( ops ++ [ q ] )  /\\  p < q\
+	  =		\{ (39) \}\
+		ord.( ops ++ [ q, p ] )\
+	  =		\{ (45) stop = ops ++ [ q, p ]; see below \}\
+		J11\
+\
+Since we didn't want to add a guard for entities that appear neither in the invariant nor in the code, we relied on theorem (45) to state that the decomposition of stop is possible.\
+\
+		( 
+\b E
+\b0  ops, q::  stop = ops ++ [ q, p ] )\
+	=		\{ G5 and sequence notation \}\
+		( 
+\b E
+\b0  ops, q::  st ++ [ p ] = ops ++ [ q ] ++ [ p ] )\
+	=		\{ Removing common suffixes \}\
+		( 
+\b E
+\b0  ops, q::  st = ops ++ [ q ] )\
+	=		\{ Sequence theory \}\
+		st \uc0\u8800  []\
+	=		\{ R6 \}\
+		stop' \uc0\u8800  []\
+	=		\{ J12: #stop  =  #def0 \}\
+		def0' \uc0\u8800  []\
+\
+(45)	( 
+\b E
+\b0  ops, q::  stop = ops ++ [ q, p ] )   <==  G5 /\\ R6 /\\ J12\
+\
+We introduced the invariant J12 to prove (46) and its proof is fairly straightforward.  For brevity, it will not be included and is left as an exercise for the reader.\
+\
+(46)		cm.q.t0'\
+	=		\{ R2 \}\
+		cm.q.leaf\
+	=		\{ (26) \}\
+		true\
+}
