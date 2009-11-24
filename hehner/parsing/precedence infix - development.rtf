@@ -362,8 +362,8 @@ We can now concentrate on making the algorithm more deterministic.  To do so, we
 \
 The obvious place to make use of these definitions is on def0 and t0.\
 \
-J6:	v.t0\
-J7:	vs.def0\
+	J6:	v.t0\
+	J7:	vs.def0\
 \
 Let's have a look at the assignments to t0 and see if the invariant is preserved.  \
 \
@@ -417,11 +417,11 @@ We also want each operator to be compatible with the tree at the same position i
 \
 Now we can reformulate J8 and propose new invariants also.\
 \
-J9:	def0 \uc0\u8800  []   ==>   ( 
+	J9:	def0 \uc0\u8800  []   ==>   ( 
 \b E
 \b0  st, p:  st ++ [ p ] = stop:  cm.p.t0 )\
-J10:	cmp.def0.stop  ==  true\
-J11:	ord.stop  ==  true\
+	J10:	cmp.def0.stop  ==  true\
+	J11:	ord.stop  ==  true\
 \
 We can now prove that J8 is subsumed by J9 and J10 and then forget about it.\
 \
@@ -555,7 +555,7 @@ From here, we rewrite stop \uc0\u8800  [] to decompose it into a head and a tail
 \
 In the previous proof, the hypotheses are not as straightforward as what we have seen so far and we will try to untangle them.\
 \
-G13:	stop \uc0\u8800  []   ==>   ( 
+	G13:	stop \uc0\u8800  []   ==>   ( 
 \b E 
 \b0 st, q::  G11 /\\ G12 )\
 \
@@ -563,4 +563,14 @@ This allows us to conclude:\
 \
 (50)	J11'   <==   J11 /\\ G13 /\\ R10\
 \
-This tells us that every operator that we shift in stop must fit in.  This is only part of the story.  If we could shift an operator and that we decide to reduce the tree instead, the opportunity can be lost and the operator could be impossible to shift in stop.  This is because the top of stop, with which we checked that the new operator fits, becomes the root of t0.  Instead of p < q, we would then need q < p in order to shift the operator.  We could therefore strengthen the guard of the third branch, the one in charge of reducing, in order to fulfill this.  Before we proceed, though, we will spend a little more time on the justification of such a transformation.  Ultimately, we want to make sure that the non-determinacy is reduced enough so that we don't "miss" a syntax tree that would have been suitable.  In operational term, since an unspecified choice is entrusted to a demon, we can be sure that he will pick any dead alley he can.}
+This tells us that every operator that we shift in stop must fit in.  This is only part of the story.  If we could shift an operator and that we decide to reduce the tree instead, the opportunity can be lost and the operator could be impossible to shift in stop.  This is because the top of stop, with which we checked that the new operator fits, becomes the root of t0.  Instead of p < q, we would then need q < p in order to shift the operator.  We could therefore strengthen the guard of the third branch, the one in charge of reducing, in order to fulfill this.  Before we proceed, though, we will spend a little more time on the justification of such a transformation.  Ultimately, we want to make sure that the non-determinacy is reduced enough so that we don't "miss" a syntax tree that would have been suitable.  In operational term, since an unspecified choice is entrusted to a demon, we can be sure that he will pick any dead alley he can.  \
+\
+As a simplification, it might be worth it to simply block the third branch if it would preclude the successful shift of an operator on the stack.\
+\
+	G14:	z0 \uc0\u8800  []   ==>   ( 
+\b A
+\b0  p, w0:  [ opt.p ] ++ w0 = z0:  q < p )\
+\
+While strengthening the guards, we must keep in mind that it might result in weakening the postcondition of the loop.  In this case it seems pretty likely because it will end up rejecting a new class of strings: those that make an ambiguous usage of operators.  For that purpose, we should keep track of the possibility for our input to be ambiguous.  It could be done by keeping a flag, say h, which is always stronger than the possible existence of a valid syntax tree.  The loop should therefore end in a state where h is also weaker, i.e. it is precisely equivalent.  This makes for a new component of the postcondition:  if it is possible, we will deliver a valid syntax tree and say so (by setting h to true), otherwise, h will be set to false.\
+\
+For lack of time, this will be left for later.}
