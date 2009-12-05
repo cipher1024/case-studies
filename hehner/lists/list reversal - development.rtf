@@ -1,0 +1,323 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf540
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+
+\f0\b\fs24 \cf0 List Reversal\
+
+\b0 \
+The goal of this note is to study the problem of list reversal and some its algorithmic solutions without referring to any particular data representation.  The data structure chosen to do so is the sequence, using mostly the concatenation to manipulate it.  \
+\
+We want to satisfy the following postcondition:\
+\
+	Q:	~x  =  S\
+\
+A first attack at the problem could be to concatenate ~x with an empty string in Q so that we could replace the empty string by a variable, say y.  The big question is:  which one of J0 or J1 do we take?\
+\
+	J0:	~x ++ y  =  S\
+	J1:	y ++ ~x  =  S\
+\
+Let's try both.  In either case, we'll want to take an element out of y and put it in x.\
+\
+		S\
+	=		\{ J0 \}\
+		~x ++ y\
+	=		\{ G0:  y = [ z ] ++ w \}\
+		~x ++ [ z ] ++ w\
+	=		\{ ~ over ++ \}\
+		~( [z] ++ x ) ++ w\
+	=		\{ S0:  x' = [z] ++ x \}\
+		~x' ++ w\
+	=		\{ S1:  y' = w \}\
+		~x' ++ y'\
+\
+Because of the symmetry of the situation, we propose without proof that S2 and S3 maintain J1 under condition G1.\
+\
+	S2:	x' = x ++ [z]\
+	S3:	y' = w \
+	G1:	y = [z] ++ w\
+\
+It could also be pointed out that\
+\
+	\{ 	x = []\
+		y = S \}\
+	
+\b do
+\b0  G0 -> \
+		S0 || S1\
+	
+\b od
+\b0 \
+	\{ 	~ x = S\
+		y = [] \}\
+\
+is the inverse of\
+\
+	\{	~ x = S\
+		y = [] \}\
+	
+\b do
+\b0  G1 ->\
+		S2 || S3\
+	
+\b od
+\b0 \
+	\{	x = []\
+		y = S \}\
+\
+Another interesting approach to reversing a list is to take both ends at the same time.  Although this approach is more symmetrical to proof that it establishes the desired postcondition is less simple.  In this case, instead of introducing a constant and substituting it for a variable, we will introduce a somewhat stranger exit condition and we will suffix our loop with a unifying assignment.  Let's start with that:\
+\
+		~ x' = S\
+	 =		\{ S4:	x' = w ++ u ++ v; reverse both ends of S.  \
+				It seems sensible to have a name for them \}\
+		~ ( w ++ u ++ v ) = S\
+	 =		\{ ~ over ++ \}\
+		~v ++ ~u ++ ~w = S\
+	<=		\{ Strengthening with G4: u = ~u \}\
+		~v ++ u ++ ~w = S  /\\  G4\
+\
+We get a nice invariant for our loop in J4.\
+\
+	J4:	~v ++ u ++ ~w = S\
+\
+And it is established if both ends are empty and the u = S.\
+\
+	S5:	v = []  /\\  u = S  /\\  w = []\
+\
+		S\
+	=		\{ J4 \}\
+		~v ++ u ++ ~w\
+	=		\{ G5: u = [y] ++ r ++ [z] \}\
+		~v ++ [y] ++ r ++ [z] ++ ~w\
+	=		\{ ~ [k] = [k] and ~ over ++ \}\
+		~( [y] ++ v ) ++ r ++ ~( w ++ [z] )\
+	=		\{ S6: v' = [y] ++ v and S7: w' = w ++ [z] \}\
+		~v' ++ r ++ ~w'\
+	=		\{ S8: u' = r \}\
+		~v' ++ u' ++ ~w'\
+\
+We are now interested in showing that the termination of the loop entails G4.  Let's start our derivation with G4 and see if we can strengthen it to get to \'acG5.\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\qc\pardirnatural
+\cf0 *	*	*\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
+\cf0 \
+\
+After struggling in vain with the mentioned proofs, I realized that an interface was missing between G5 and G4 and that it was a sufficient ground to use something different as the guard of the loop.  I found the following:\
+\
+	G6:	#u \uc0\u8805  2\
+\
+It becomes necessary to prove that it is a correct interface:  We start by proving that \'acG6  ==>  G4.\
+\
+		#u \uc0\u8805  2\
+	=		\{ Decomposition of u \}\
+		( E t, y:  [y] ++ t  =  u:  #([y] ++ t)  \uc0\u8805   2 )\
+	=		\{ # over ++ and arithmetic \}\
+		( E t, y:  [y] ++ t  =  u:  #t  \uc0\u8805   1 )\
+	=		\{ Decomposition of t \}\
+		( E t, y, r, z:  [y] ++ t  =  u   /\\   r ++ [z]  =  t:   #( r ++ [z] )  \uc0\u8805   1 )\
+	=		\{ # over ++ and arithmetic \}\
+		( E t, y, r, z:  [y] ++ t  =  u   /\\   r ++ [z]  =  t:   #r  \uc0\u8805   0 )\
+	=		\{ One point rule \}\
+		( E y, r, z:  [y] ++ r ++ [x]  =  u:  #r  \uc0\u8805   0 )\
+	=		\{ Length of sequences \}\
+		( E r, y, z::  [y] ++ r ++ [x]  =  u )\
+\
+And terminate with G6  ==>  G5.\
+\
+		#u < 2\
+	=		\{ #u is a natural \}\
+		#u = 1  \\/  #u = 0\
+\
+		#u = 0\
+	 =		\{ #u = 0   ==   u = [] \}\
+		u = []\
+	 =		\{ [] = ~ [] \}\
+		u = []  /\\  [] = ~[]\
+	 =		\{ Leibniz \}\
+		u = []  /\\  u = ~u\
+	=>		\{ Weakening \}\
+		u = ~u\
+\
+		#u = 1\
+	 =		\{ Sequence theory \}\
+		( E k::  u = [k] )\
+	 =		\{ [k] = ~[k] \}\
+		( E k::  u = [k]  /\\  [k] = ~[k] )\
+	 =		\{ Leibniz \}\
+		( E k::  u = [k]  /\\  u = ~u )\
+	 =		\{ /\\ over E \}\
+		( E k::  u = [k]  /\\  u = ~u\
+	=>		\{ Weakening \}\
+		u = ~u\
+\
+This was certainly a complicated proof compared to those that lead to the design of the asymmetric algorithms.  It has the nice property of being implementable in-situ in an array.  Let's first put our findings together:\
+\
+	v, w, u  :=  [], [], S  ;\
+	while #u \uc0\u8805  2 do\
+		any y, r, z where \
+			u = [y] ++ r ++ [z] \
+		in\
+			v, u, w  :=  [y] ++ v, r, w ++ [z]\
+		end\
+	od ;\
+	x := w ++ u ++ v\
+\
+Let f be the mapping between the indices of the array and the values and n be its size.  We will use i and j respectively for the lower and upper bound of u.  To limit copying of the content of the array, we can use i for the upper bound of w and j for the lower bound of v.  It seems promising since, at the end, x is assigned the concatenation of w, u, and v in the order in which they appear on the array.  In addition, v and w are extended on the side of the bound that they share with u.  We will start the numbering of our predicates at 10.\
+\
+	J10:	w = f (0 .. i)\
+	J11:	u = f (i .. j)\
+	J12:	v = f (j .. n)\
+\
+		w'\
+	=		\{ S7 \}\
+		w ++ [z]\
+	=		\{ J10 \}\
+		f (0 .. i) ++ [z]\
+	=		\{ G10 see below \}\
+		f (0 .. i) ++ f (j-1 .. j)\
+	=		\{ S10 \}\
+		f (0 .. i) ++ f' (i .. i+1)\
+	=		\{ S11 \}\
+		f' (0 .. i) ++ f' (i .. i+1)\
+	=		\{ (2) with J13 \}\
+		f' (0 .. i + 1)\
+	=		\{ S12 \}\
+		f' (0 .. i')\
+\
+	G10:		[z] = f (j-1 .. j)\
+\
+(0)	f (i .. i+1)  =  [ f.i ]\
+(2)	f (i .. j) = f (i .. k) ++ f (k .. j)    <==    i \uc0\u8804  k \u8804  j\
+\
+	S10:		f' (i .. i + 1) = f.(j-1 .. j)\
+	S11:		f' (0 .. i) = f (0 .. i)\
+	S12:		i' = i + 1\
+	J13:		0 \uc0\u8804  i\
+\
+It is easy to see that the only statement concerning i cannot falsify J13.  We will therefore proceed to the rest of the proof.\
+\
+We have an analogous derivation on the topic of J12 which leads to the following program components:\
+\
+	G11:		[y] = f (i .. i+1)\
+	S13:		f' (j-1 .. j) = f (i .. i+1)\
+	S14:		f' (j .. n) = f (j .. n)\
+	S15:		j' = j - 1\
+	J14:		j < n\
+\
+We can now take care of J11 using those components.  \
+\
+The proof presented is a bit unusual because it doesn't directly prove J11\
+\
+		f' (i' .. j')\
+	=		\{ S12 and S15 \}\
+		f' (i+1 .. j-1)\
+	=		\{ S16 \}\
+		f (i+1 .. j-1)\
+	=		\{ G12 \}\
+		r\
+	=		\{ S8 \}\
+		u'\
+\
+	G12:		r = f (i+1 .. j-1)\
+	S16:		f' (i+1 .. j-1) = f (i+1 .. j-1)\
+\
+We will finally have a look at G5 and G6 to see what they become.\
+\
+		[y] ++ r ++ [z]\
+	=		\{ G10, G11, G12 \}\
+		f (i .. i+1) ++ f (i+1 .. j-1) ++ f (j-1 .. j)\
+	=		\{ (2) twice \}\
+		f (i .. j)\
+	=		\{ J11 \}\
+		u\
+\
+It remains of G5 that:\
+\
+		( E r, y, z::  G10 /\\ G11 /\\ G12 )\
+\
+which can be proved using the one-point rule thrice.  We can now turn to G6.\
+\
+		#u \uc0\u8805  2\
+	=		\{ J11 \}\
+		# f (i .. j)  \uc0\u8805  2\
+	=		\{ (3) \}\
+		(j - i) 
+\f1 \uc0\u8593 
+\f0  0  \uc0\u8805   2\
+	=		\{ Lattice theory \}\
+		j - i  \uc0\u8805   2   \\/   0 \u8805  2\
+	=		\{ Identity of \\/ \}\
+		j - i  \uc0\u8805   2\
+\
+(3)	# f (i .. j)   =   (j - i) 
+\f1 \uc0\u8593 
+\f0  0\
+\
+We get our new loop condition:\
+\
+	G13:		j - i \uc0\u8805  2\
+\
+We now need to refine S4 and S5.\
+\
+		x'\
+	=		\{ S4 \}\
+		w ++ u ++ v\
+	=		\{ J10, J11, J12 \}\
+		f (0 .. i) ++ f (i .. j) ++ f (j .. n)\
+	=		\{ (2) twice \}\
+		f (0 .. n)\
+\
+		w' = f (0 .. i')\
+	=		\{ S5 \}\
+		[]  =  f (0 .. i')\
+	=		\{ S17 \}\
+		[]  =  f (0 .. 0)\
+	=		\{ (4) \}\
+		true\
+\
+(4)	f (i .. i) = []\
+\
+	S17:		i' = 0\
+\
+A nice point of S17 is that it maintains J13 in a very simple way.\
+\
+		v' = f (j' .. n)\
+	=		\{ S5 \}\
+		[] = f (j' .. n)\
+	=		\{ S18 \}\
+		[] = f (n .. n)\
+	=		\{ (4) \}\
+		true\
+\
+	S18:		i' = n\
+\
+We now have to verify that J11 is established.\
+\
+		u' = f (i' .. j')\
+	=		\{ S5, S17, and S18 \}\
+		S = f (0 .. n)\
+\
+We end up at an interesting precondition for the whole program.  \
+\
+Here is a summary of the program we have derived:\
+\
+	i, j  :=  0, n ;\
+	while j - i \uc0\u8805 \'a02 do\
+		f.i, f.( j-1 )  :=  f.( j-1 ), f.i    ||\
+		i := i + 1     ||\
+		j := j - 1\
+	od\
+\
+We can see that the expression j-1 is repeated three times in the body and we might be able to solve it by moving upwards the assignment to j.  For symmetry's sake we will also assign to i in a separate statement.\
+\
+	i, j  :=  0, n ;\
+	while j - i \uc0\u8805 \'a02 do\
+		j := j - 1  ;\
+		f.i, f.j  :=  f.j, f.i   ;\
+		i := i + 1\
+	od\
+\
+In the previous note, a particular notion of arrays have been used and it seems like a very interesting way of manipulating them.  At the very least assigning segments of array at a time seems very effective when implementing an algorithm on sequences.  }
